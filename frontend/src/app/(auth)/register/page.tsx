@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useRegister } from '@/hooks/useAuth';
+import { AuthCard } from '@/components/auth/AuthCard';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -32,9 +33,7 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-gray-900 p-8 shadow-xl">
-        <h1 className="text-center text-2xl font-bold text-white">Create Account</h1>
+    <AuthCard title="Create Account">
         {error && (
           <p className="rounded-lg bg-red-900/40 p-3 text-sm text-red-300">{error.message}</p>
         )}
@@ -63,7 +62,6 @@ export default function RegisterPage() {
           Already have an account?{' '}
           <Link href="/login" className="text-blue-400 hover:underline">Sign in</Link>
         </p>
-      </div>
-    </div>
+    </AuthCard>
   );
 }

@@ -2,15 +2,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSendPasswordReset } from '@/hooks/useAuth';
+import { AuthCard } from '@/components/auth/AuthCard';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const { mutate: sendReset, isPending, isSuccess, error } = useSendPasswordReset();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-gray-900 p-8 shadow-xl">
-        <h1 className="text-center text-2xl font-bold text-white">Reset Password</h1>
+    <AuthCard title="Reset Password">
         {isSuccess ? (
           <div className="rounded-lg bg-green-900/40 p-4 text-center text-green-300">
             Check your email for a reset link.
@@ -48,7 +47,6 @@ export default function ForgotPasswordPage() {
             </p>
           </>
         )}
-      </div>
-    </div>
+    </AuthCard>
   );
 }

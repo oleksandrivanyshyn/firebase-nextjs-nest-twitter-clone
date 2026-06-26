@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useSignIn, useSignInWithGoogle } from '@/hooks/useAuth';
+import { AuthCard } from '@/components/auth/AuthCard';
 
 const schema = z.object({
   email: z.string().email(),
@@ -22,9 +23,7 @@ export default function LoginPage() {
   const error = signInError?.message ?? googleError?.message;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-gray-900 p-8 shadow-xl">
-        <h1 className="text-center text-2xl font-bold text-white">Sign In</h1>
+    <AuthCard title="Sign In">
         {error && <p className="rounded-lg bg-red-900/40 p-3 text-sm text-red-300">{error}</p>}
         <form onSubmit={handleSubmit((data) => signIn(data))} className="space-y-4">
           <div>
@@ -74,7 +73,6 @@ export default function LoginPage() {
           {' · '}
           <Link href="/forgot-password" className="text-blue-400 hover:underline">Forgot password?</Link>
         </p>
-      </div>
-    </div>
+    </AuthCard>
   );
 }
