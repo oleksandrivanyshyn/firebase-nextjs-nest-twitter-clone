@@ -24,6 +24,7 @@ export class FirebaseService implements OnModuleInit {
       this.app = admin.apps[0]!;
     }
     this.db = admin.firestore(this.app);
+    this.db.settings({ ignoreUndefinedProperties: true });
     this.auth = admin.auth(this.app);
     this.storage = admin.storage(this.app);
   }
