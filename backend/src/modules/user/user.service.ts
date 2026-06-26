@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FieldValue } from 'firebase-admin/firestore';
-import {FirebaseService} from "../../integrations/firebase/firebase.service";
+import { FirebaseService } from '../../integrations/firebase/firebase.service';
 
 @Injectable()
 export class UserService {
@@ -18,10 +18,12 @@ export class UserService {
   }
 
   async upsertProfile(uid: string, data: Record<string, unknown>) {
-    await this.col.doc(uid).set(
-      { ...data, uid, updatedAt: FieldValue.serverTimestamp() },
-      { merge: true },
-    );
+    await this.col
+      .doc(uid)
+      .set(
+        { ...data, uid, updatedAt: FieldValue.serverTimestamp() },
+        { merge: true },
+      );
     return this.getProfile(uid);
   }
 
