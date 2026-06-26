@@ -35,7 +35,7 @@ export const authService = {
     surname: string,
   ) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await sendEmailVerification(cred.user);
+    sendEmailVerification(cred.user).catch(console.error);
     await apiFetch('/users/me', {
       method: 'PUT',
       body: JSON.stringify({ name, surname }),
