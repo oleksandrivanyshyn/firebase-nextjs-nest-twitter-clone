@@ -4,14 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
-import { storage, auth } from '@/lib/firebase';
-import { apiFetch } from '@/utils/api';
-import { useQueryClient } from '@tanstack/react-query';
+import { storageService } from '@/services/storage.service';
+import { useUpdatePost } from '@/hooks/usePosts';
 import { X, ImagePlus } from 'lucide-react';
 import type { Post } from '@/types';
 
@@ -28,8 +22,7 @@ interface Props {
 
 export function EditPostModal({ post, onClose }: Props) {
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const qc = useQueryClient();
+  const updatePost = useUpdatePost();
 
   const {
     register,
@@ -41,28 +34,13 @@ export function EditPostModal({ post, onClose }: Props) {
   });
 
   const onSubmit = async (data: FormData) => {
-    setUploading(true);
-    let photoURL: string | null = post.photoURL;
-
-    if (file) {
-      const uid = auth.currentUser!.uid;
-      const fileRef = storageRef(
-        storage,
-        `posts/${uid}/${Date.now()}_${file.name}`,
-      );
-      await uploadBytes(fileRef, file);
-      photoURL = await getDownloadURL(fileRef);
-    }
-
-    await apiFetch(`/posts/${post.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ ...data, photoURL }),
-    });
-
-    qc.invalidateQueries({ queryKey: ['posts'] });
-    qc.invalidateQueries({ queryKey: ['post', post.id] });
-    setUploading(false);
-    onClose();
+    const photoURL = file
+      ? await storageService.uploadPostImage(file)
+      : post.photoURL;
+    updatePost.mutate(
+      { id: post.id, data: { ...data, photoURL } },
+      { onSuccess: onClose },
+    );
   };
 
   return (
@@ -118,10 +96,10 @@ export function EditPostModal({ post, onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || uploading}
+              disabled={isSubmitting || updatePost.isPending}
               className="rounded-full bg-blue-600 px-5 py-2 font-bold text-white hover:bg-blue-500 disabled:opacity-50"
             >
-              {isSubmitting || uploading ? 'Saving…' : 'Save'}
+              {isSubmitting || updatePost.isPending ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>
