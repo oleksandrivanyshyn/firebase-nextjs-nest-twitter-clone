@@ -1,9 +1,10 @@
 'use client';
 
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '@/utils/api';
+import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
+import { useUserPosts } from '@/hooks/usePosts';
 import { PostCard } from '@/components/posts/PostCard';
+import { storageService } from '@/services/storage.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,15 +13,9 @@ import {
   reauthenticateWithCredential,
   updatePassword,
 } from 'firebase/auth';
-import { auth, storage } from '@/lib/firebase';
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
+import { auth } from '@/lib/firebase';
 import { useSignOut } from '@/hooks/useAuth';
 import { useState } from 'react';
-import type { UserProfile, PaginatedPosts } from '@/types';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Required'),
@@ -30,20 +25,13 @@ type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
   const { user } = useAuthContext();
-  const qc = useQueryClient();
+  const { data: profile } = useMe(!!user);
+  const { data: postsData } = useUserPosts(user?.uid ?? '');
+  const updateProfile = useUpdateProfile();
+  const deleteAccount = useDeleteAccount();
   const signOut = useSignOut();
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile', user?.uid],
-    queryFn: () => apiFetch<UserProfile>('/users/me'),
-    enabled: !!user,
-  });
-
-  const { data: postsData } = useQuery({
-    queryKey: ['userPosts', user?.uid],
-    queryFn: () => apiFetch<PaginatedPosts>(`/users/${user!.uid}/posts`),
-    enabled: !!user,
-  });
+  const posts = postsData?.pages.flatMap((p) => p.posts) ?? [];
 
   const {
     register,
@@ -56,34 +44,11 @@ export default function ProfilePage() {
       : undefined,
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (data: ProfileForm) =>
-      apiFetch('/users/me', { method: 'PUT', body: JSON.stringify(data) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['profile'] }),
-  });
-
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    const fileRef = storageRef(
-      storage,
-      `avatars/${user.uid}/${Date.now()}_${file.name}`,
-    );
-    await uploadBytes(fileRef, file);
-    const photoURL = await getDownloadURL(fileRef);
-    await apiFetch('/users/me', {
-      method: 'PUT',
-      body: JSON.stringify({ photoURL }),
-    });
-    qc.invalidateQueries({ queryKey: ['profile'] });
-    qc.invalidateQueries({ queryKey: ['user', user.uid] });
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!confirm('Delete your account permanently? This cannot be undone.'))
-      return;
-    await apiFetch('/users/me', { method: 'DELETE' });
-    signOut.mutate();
+    const photoURL = await storageService.uploadAvatar(file, user.uid);
+    updateProfile.mutate({ photoURL });
   };
 
   return (
@@ -123,7 +88,7 @@ export default function ProfilePage() {
 
       {/* Edit name/surname */}
       <form
-        onSubmit={handleSubmit((d) => updateMutation.mutate(d))}
+        onSubmit={handleSubmit((d) => updateProfile.mutate(d))}
         className="space-y-4"
       >
         <div>
@@ -146,10 +111,10 @@ export default function ProfilePage() {
         </div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || updateProfile.isPending}
           className="rounded-full bg-blue-600 px-6 py-2 font-bold text-white hover:bg-blue-500 disabled:opacity-50"
         >
-          {isSubmitting ? 'Saving…' : 'Save Changes'}
+          {isSubmitting || updateProfile.isPending ? 'Saving…' : 'Save Changes'}
         </button>
       </form>
 
@@ -160,10 +125,10 @@ export default function ProfilePage() {
       </div>
 
       {/* My posts */}
-      {postsData?.posts && postsData.posts.length > 0 && (
+      {posts.length > 0 && (
         <div>
           <h2 className="mb-2 font-semibold text-white">My Posts</h2>
-          {postsData.posts.map((post) => (
+          {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
@@ -179,7 +144,13 @@ export default function ProfilePage() {
           Log out
         </button>
         <button
-          onClick={handleDeleteAccount}
+          onClick={() => {
+            if (
+              confirm('Delete your account permanently? This cannot be undone.')
+            ) {
+              deleteAccount.mutate();
+            }
+          }}
           className="w-full rounded-lg bg-red-900/30 py-2 text-red-400 transition hover:bg-red-900/50"
         >
           Delete Account
