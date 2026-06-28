@@ -121,7 +121,7 @@ export class PostsService {
     if (data.userId !== uid) {
       throw new ForbiddenException('Not the author');
     }
-    await this.col.doc(id).update(dto as Record<string, unknown>);
+    await this.col.doc(id).update({ ...dto });
     return this.findOne(id);
   }
 
