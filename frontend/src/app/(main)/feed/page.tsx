@@ -1,26 +1,16 @@
 'use client';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { apiFetch } from '@/utils/api';
-import { PostCard } from '@/components/posts/PostCard';
-import { useDebounce } from '@/hooks/useDebounce';
 import { useState } from 'react';
-import type { PaginatedPosts } from '@/types';
+import { PostCard } from '@/components/posts/PostCard';
+import { useFeed } from '@/hooks/usePosts';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function FeedPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: ['posts', debouncedSearch],
-      queryFn: ({ pageParam }) =>
-        apiFetch<PaginatedPosts>(
-          `/posts?limit=10${pageParam ? `&startAfter=${pageParam}` : ''}${debouncedSearch ? `&q=${encodeURIComponent(debouncedSearch)}` : ''}`,
-        ),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: (last) => last.nextCursor ?? undefined,
-    });
+    useFeed(debouncedSearch);
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? [];
 
