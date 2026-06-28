@@ -1,11 +1,10 @@
 'use client';
 
 import { use } from 'react';
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { apiFetch } from '@/utils/api';
 import { PostCard } from '@/components/posts/PostCard';
+import { useUser } from '@/hooks/useProfile';
+import { useUserPosts } from '@/hooks/usePosts';
 import dayjs from 'dayjs';
-import type { UserProfile, PaginatedPosts } from '@/types';
 
 export default function UserProfilePage({
   params,
@@ -13,22 +12,9 @@ export default function UserProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-
-  const { data: profile } = useQuery({
-    queryKey: ['user', id],
-    queryFn: () => apiFetch<UserProfile>(`/users/${id}`),
-  });
-
+  const { data: profile } = useUser(id);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ['userPosts', id],
-      queryFn: ({ pageParam }) =>
-        apiFetch<PaginatedPosts>(
-          `/users/${id}/posts?limit=10${pageParam ? `&startAfter=${pageParam}` : ''}`,
-        ),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: (last) => last.nextCursor ?? undefined,
-    });
+    useUserPosts(id);
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? [];
 
