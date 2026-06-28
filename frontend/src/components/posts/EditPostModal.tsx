@@ -37,10 +37,8 @@ export function EditPostModal({ post, onClose }: Props) {
     const photoURL = file
       ? await storageService.uploadPostImage(file)
       : post.photoURL;
-    updatePost.mutate(
-      { id: post.id, data: { ...data, photoURL } },
-      { onSuccess: onClose },
-    );
+    await updatePost.mutateAsync({ id: post.id, data: { ...data, photoURL } });
+    onClose();
   };
 
   return (
@@ -86,6 +84,11 @@ export function EditPostModal({ post, onClose }: Props) {
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </label>
+          {updatePost.isError && (
+            <p className="text-sm text-red-400">
+              {(updatePost.error as Error)?.message ?? 'Something went wrong'}
+            </p>
+          )}
           <div className="flex justify-end gap-3">
             <button
               type="button"

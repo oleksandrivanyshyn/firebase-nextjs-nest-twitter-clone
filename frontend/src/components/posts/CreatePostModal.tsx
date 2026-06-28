@@ -26,7 +26,8 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
 
   const onSubmit = async (data: FormData) => {
     const photoURL = file ? await storageService.uploadPostImage(file) : null;
-    createPost.mutate({ ...data, photoURL }, { onSuccess: onClose });
+    await createPost.mutateAsync({ ...data, photoURL });
+    onClose();
   };
 
   return (
@@ -72,6 +73,11 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </label>
+          {createPost.isError && (
+            <p className="text-sm text-red-400">
+              {(createPost.error as Error)?.message ?? 'Something went wrong'}
+            </p>
+          )}
           <div className="flex justify-end gap-3">
             <button
               type="button"

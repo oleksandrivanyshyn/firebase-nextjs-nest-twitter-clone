@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      router.replace(user ? '/feed' : '/login');
+      router.replace('/feed');
     }
   }, [user, loading, router]);
 
