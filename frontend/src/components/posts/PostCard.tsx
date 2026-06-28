@@ -6,10 +6,11 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { apiFetch } from '@/utils/api';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDeletePost } from '@/hooks/usePosts';
+import { useMyReaction, useReact } from '@/hooks/useReactions';
+import { useUser } from '@/hooks/useProfile';
 import { EditPostModal } from './EditPostModal';
-import type { Post, UserProfile } from '@/types';
+import type { Post } from '@/types';
 
 dayjs.extend(relativeTime);
 
@@ -21,44 +22,13 @@ interface Props {
 
 export function PostCard({ post, onDeleted, showActions = true }: Props) {
   const { user } = useAuthContext();
-  const qc = useQueryClient();
   const isOwner = user?.uid === post.userId;
   const [showEdit, setShowEdit] = useState(false);
 
-  const { data: reaction } = useQuery({
-    queryKey: ['reaction', post.id, user?.uid],
-    queryFn: () =>
-      apiFetch<{ type: 'like' | 'dislike' | null }>(
-        `/posts/${post.id}/my-reaction`,
-      ),
-    enabled: !!user,
-  });
-
-  const { data: author } = useQuery({
-    queryKey: ['user', post.userId],
-    queryFn: () => apiFetch<UserProfile>(`/users/${post.userId}`),
-  });
-
-  const reactMutation = useMutation({
-    mutationFn: (type: 'like' | 'dislike') =>
-      apiFetch(`/posts/${post.id}/react`, {
-        method: 'POST',
-        body: JSON.stringify({ type }),
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['posts'] });
-      qc.invalidateQueries({ queryKey: ['post', post.id] });
-      qc.invalidateQueries({ queryKey: ['reaction', post.id] });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: () => apiFetch(`/posts/${post.id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['posts'] });
-      onDeleted?.();
-    },
-  });
+  const { data: reaction } = useMyReaction(post.id, user?.uid);
+  const { data: author } = useUser(post.userId);
+  const react = useReact(post.id);
+  const deletePost = useDeletePost();
 
   return (
     <>
@@ -110,7 +80,7 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
             {showActions && (
               <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
                 <button
-                  onClick={() => reactMutation.mutate('like')}
+                  onClick={() => react.mutate('like')}
                   className={`flex items-center gap-1 transition hover:text-red-400 ${reaction?.type === 'like' ? 'text-red-400' : ''}`}
                 >
                   <Heart
@@ -121,7 +91,7 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                 </button>
 
                 <button
-                  onClick={() => reactMutation.mutate('dislike')}
+                  onClick={() => react.mutate('dislike')}
                   className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'dislike' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsDown
@@ -150,7 +120,9 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => deleteMutation.mutate()}
+                      onClick={() =>
+                        deletePost.mutate(post.id, { onSuccess: onDeleted })
+                      }
                       className="transition hover:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
