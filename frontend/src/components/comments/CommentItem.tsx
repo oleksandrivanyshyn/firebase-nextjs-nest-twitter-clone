@@ -4,11 +4,10 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Trash2, Pencil, Reply } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '@/utils/api';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useDeleteComment, useUpdateComment } from '@/hooks/useComments';
+import { useUser } from '@/hooks/useProfile';
 import { CommentForm } from './CommentForm';
-import type { UserProfile } from '@/types';
 
 dayjs.extend(relativeTime);
 
@@ -30,34 +29,14 @@ interface Props {
 
 export function CommentItem({ comment, postId, depth }: Props) {
   const { user } = useAuthContext();
-  const qc = useQueryClient();
   const [replying, setReplying] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(comment.text);
   const isOwner = user?.uid === comment.userId;
 
-  const { data: author } = useQuery({
-    queryKey: ['user', comment.userId],
-    queryFn: () => apiFetch<UserProfile>(`/users/${comment.userId}`),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: () =>
-      apiFetch(`/posts/${postId}/comments/${comment.id}`, { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', postId] }),
-  });
-
-  const editMutation = useMutation({
-    mutationFn: (text: string) =>
-      apiFetch(`/posts/${postId}/comments/${comment.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ text }),
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['comments', postId] });
-      setEditing(false);
-    },
-  });
+  const { data: author } = useUser(comment.userId);
+  const deleteComment = useDeleteComment(postId);
+  const updateComment = useUpdateComment(postId);
 
   return (
     <div
@@ -97,8 +76,13 @@ export function CommentItem({ comment, postId, depth }: Props) {
               />
               <div className="flex gap-2">
                 <button
-                  onClick={() => editMutation.mutate(editText)}
-                  disabled={editMutation.isPending}
+                  onClick={() =>
+                    updateComment.mutate(
+                      { commentId: comment.id, text: editText },
+                      { onSuccess: () => setEditing(false) },
+                    )
+                  }
+                  disabled={updateComment.isPending}
                   className="rounded-full bg-blue-600 px-4 py-1 text-xs font-bold text-white disabled:opacity-50"
                 >
                   Save
@@ -133,7 +117,7 @@ export function CommentItem({ comment, postId, depth }: Props) {
                   <Pencil className="h-3 w-3" /> Edit
                 </button>
                 <button
-                  onClick={() => deleteMutation.mutate()}
+                  onClick={() => deleteComment.mutate(comment.id)}
                   className="flex items-center gap-1 transition hover:text-red-400"
                 >
                   <Trash2 className="h-3 w-3" /> Delete
