@@ -1,12 +1,11 @@
 'use client';
 
 import { use } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { apiFetch } from '@/utils/api';
 import { PostCard } from '@/components/posts/PostCard';
 import { CommentTree } from '@/components/comments/CommentTree';
 import { CommentForm } from '@/components/comments/CommentForm';
-import type { Post, Comment } from '@/types';
+import { usePost } from '@/hooks/usePosts';
+import { useComments } from '@/hooks/useComments';
 
 export default function PostPage({
   params,
@@ -14,16 +13,8 @@ export default function PostPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-
-  const { data: post } = useQuery({
-    queryKey: ['post', id],
-    queryFn: () => apiFetch<Post>(`/posts/${id}`),
-  });
-
-  const { data: comments = [] } = useQuery({
-    queryKey: ['comments', id],
-    queryFn: () => apiFetch<Comment[]>(`/posts/${id}/comments`),
-  });
+  const { data: post } = usePost(id);
+  const { data: comments = [] } = useComments(id);
 
   if (!post) {
     return (
