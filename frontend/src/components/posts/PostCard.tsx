@@ -5,6 +5,7 @@ import { Heart, ThumbsDown, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDeletePost } from '@/hooks/usePosts';
 import { useMyReaction, useReact } from '@/hooks/useReactions';
@@ -22,6 +23,7 @@ interface Props {
 
 export function PostCard({ post, onDeleted, showActions = true }: Props) {
   const { user } = useAuthContext();
+  const router = useRouter();
   const isOwner = user?.uid === post.userId;
   const [showEdit, setShowEdit] = useState(false);
 
@@ -29,6 +31,14 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
   const { data: author } = useUser(post.userId);
   const react = useReact(post.id);
   const deletePost = useDeletePost();
+
+  const handleReact = (type: 'like' | 'dislike') => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    react.mutate(type);
+  };
 
   return (
     <>
@@ -80,7 +90,7 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
             {showActions && (
               <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
                 <button
-                  onClick={() => react.mutate('like')}
+                  onClick={() => handleReact('like')}
                   className={`flex items-center gap-1 transition hover:text-red-400 ${reaction?.type === 'like' ? 'text-red-400' : ''}`}
                 >
                   <Heart
@@ -91,7 +101,7 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                 </button>
 
                 <button
-                  onClick={() => react.mutate('dislike')}
+                  onClick={() => handleReact('dislike')}
                   className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'dislike' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsDown

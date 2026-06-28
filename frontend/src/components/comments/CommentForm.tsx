@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useCreateComment } from '@/hooks/useComments';
 
@@ -15,7 +16,16 @@ export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
   const [text, setText] = useState('');
   const createComment = useCreateComment(postId);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <p className="text-sm text-gray-500">
+        <Link href="/login" className="text-blue-400 hover:underline">
+          Sign in
+        </Link>{' '}
+        to leave a comment.
+      </p>
+    );
+  }
 
   return (
     <div className="flex gap-3">

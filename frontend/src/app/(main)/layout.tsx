@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/layout/Sidebar';
 
@@ -10,14 +8,7 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuthContext();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [user, loading, router]);
+  const { loading } = useAuthContext();
 
   if (loading) {
     return (
@@ -27,12 +18,10 @@ export default function MainLayout({
     );
   }
 
-  if (!user) return null;
-
   return (
     <div className="flex min-h-screen bg-gray-950 text-white">
       <Sidebar />
-      <main className="max-w-2xl flex-1 border-x border-gray-800 mx-auto min-h-screen">
+      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800">
         {children}
       </main>
       <div className="hidden w-80 p-4 lg:block" />
