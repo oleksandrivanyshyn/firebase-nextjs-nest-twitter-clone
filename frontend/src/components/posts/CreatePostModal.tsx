@@ -4,14 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
-import { storage, auth } from '@/lib/firebase';
-import { apiFetch } from '@/utils/api';
-import { useQueryClient } from '@tanstack/react-query';
+import { storageService } from '@/services/storage.service';
+import { useCreatePost } from '@/hooks/usePosts';
 import { X, ImagePlus } from 'lucide-react';
 
 const schema = z.object({
@@ -22,8 +16,7 @@ type FormData = z.infer<typeof schema>;
 
 export function CreatePostModal({ onClose }: { onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const qc = useQueryClient();
+  const createPost = useCreatePost();
 
   const {
     register,
@@ -32,27 +25,8 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
-    setUploading(true);
-    let photoURL: string | null = null;
-
-    if (file) {
-      const uid = auth.currentUser!.uid;
-      const fileRef = storageRef(
-        storage,
-        `posts/${uid}/${Date.now()}_${file.name}`,
-      );
-      await uploadBytes(fileRef, file);
-      photoURL = await getDownloadURL(fileRef);
-    }
-
-    await apiFetch('/posts', {
-      method: 'POST',
-      body: JSON.stringify({ ...data, photoURL }),
-    });
-
-    qc.invalidateQueries({ queryKey: ['posts'] });
-    setUploading(false);
-    onClose();
+    const photoURL = file ? await storageService.uploadPostImage(file) : null;
+    createPost.mutate({ ...data, photoURL }, { onSuccess: onClose });
   };
 
   return (
@@ -108,10 +82,10 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || uploading}
+              disabled={isSubmitting || createPost.isPending}
               className="rounded-full bg-blue-600 px-5 py-2 font-bold text-white hover:bg-blue-500 disabled:opacity-50"
             >
-              {isSubmitting || uploading ? 'Posting…' : 'Tweet'}
+              {isSubmitting || createPost.isPending ? 'Posting…' : 'Tweet'}
             </button>
           </div>
         </form>
