@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, ThumbsDown, MessageCircle, Pencil, Trash2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
@@ -91,9 +91,9 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
               <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
                 <button
                   onClick={() => handleReact('like')}
-                  className={`flex items-center gap-1 transition hover:text-red-400 ${reaction?.type === 'like' ? 'text-red-400' : ''}`}
+                  className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
                 >
-                  <Heart
+                  <ThumbsUp
                     className="h-4 w-4"
                     fill={reaction?.type === 'like' ? 'currentColor' : 'none'}
                   />
