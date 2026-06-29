@@ -59,6 +59,7 @@ export function useUpdatePost() {
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: ['posts'] });
       qc.invalidateQueries({ queryKey: ['post', id] });
+      qc.invalidateQueries({ queryKey: ['userPosts'] });
     },
   });
 }
@@ -67,6 +68,9 @@ export function useDeletePost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: postsService.remove,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['posts'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['posts'] });
+      qc.invalidateQueries({ queryKey: ['userPosts'] });
+    },
   });
 }

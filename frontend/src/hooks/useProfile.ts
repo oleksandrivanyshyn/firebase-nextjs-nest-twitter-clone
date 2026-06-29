@@ -24,7 +24,7 @@ export function useUpdateProfile() {
     mutationFn: profileService.update,
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['profile'] });
-      qc.invalidateQueries({ queryKey: ['user', data?.uid] });
+      qc.invalidateQueries({ queryKey: ['user', data?.uid ?? ''] });
     },
   });
 }

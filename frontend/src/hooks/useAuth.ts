@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/auth.service';
+import { queryClient } from '@/lib/queryClient';
 
 export function useSignIn() {
   const router = useRouter();
@@ -52,6 +53,9 @@ export function useSignOut() {
   return useMutation({
     mutationKey: ['auth', 'signOut'],
     mutationFn: () => authService.signOut(),
-    onSuccess: () => router.replace('/login'),
+    onSuccess: () => {
+      queryClient.clear();
+      router.replace('/login');
+    },
   });
 }

@@ -34,6 +34,9 @@ export function useDeleteComment(postId: string) {
   return useMutation({
     mutationFn: (commentId: string) =>
       commentsService.remove(postId, commentId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', postId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['comments', postId] });
+      qc.invalidateQueries({ queryKey: ['post', postId] });
+    },
   });
 }
