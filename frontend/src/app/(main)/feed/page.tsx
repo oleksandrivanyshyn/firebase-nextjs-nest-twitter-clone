@@ -9,8 +9,14 @@ export default function FeedPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useFeed(debouncedSearch);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useFeed(debouncedSearch);
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? [];
 
@@ -36,7 +42,13 @@ export default function FeedPage() {
         <PostCard key={post.id} post={post} />
       ))}
 
-      {!isLoading && posts.length === 0 && (
+      {isError && (
+        <p className="p-8 text-center text-red-400">
+          Failed to load posts. Please try again.
+        </p>
+      )}
+
+      {!isLoading && !isError && posts.length === 0 && (
         <p className="p-8 text-center text-gray-500">No posts yet.</p>
       )}
 

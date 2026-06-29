@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
@@ -36,7 +37,7 @@ export default function ProfilePage() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     values: profile
@@ -55,15 +56,15 @@ export default function ProfilePage() {
     <div className="max-w-lg space-y-8 p-6">
       <h1 className="text-2xl font-bold text-white">Your Profile</h1>
 
-      {/* Avatar */}
       <div className="flex items-center gap-4">
         <label className="cursor-pointer">
           <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-2xl font-bold text-white">
             {profile?.photoURL ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={profile.photoURL}
                 alt="avatar"
+                width={80}
+                height={80}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -86,28 +87,37 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Edit name/surname */}
       <form
-        onSubmit={handleSubmit((d) => updateProfile.mutate(d))}
+        onSubmit={handleSubmit(async (d) => { await updateProfile.mutateAsync(d); })}
         className="space-y-4"
       >
         <div>
-          <label className="block text-sm font-medium text-gray-300">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-300">
             First Name
           </label>
           <input
             {...register('name')}
+            id="name"
+            autoComplete="given-name"
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
           />
+          {errors.name && (
+            <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>
+          )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-300">
+          <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
             Last Name
           </label>
           <input
             {...register('surname')}
+            id="surname"
+            autoComplete="family-name"
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
           />
+          {errors.surname && (
+            <p className="mt-1 text-xs text-red-400">{errors.surname.message}</p>
+          )}
         </div>
         <button
           type="submit"
@@ -118,13 +128,13 @@ export default function ProfilePage() {
         </button>
       </form>
 
-      {/* Change password */}
-      <div className="space-y-3 rounded-xl border border-gray-800 p-4">
-        <h2 className="font-semibold text-white">Change Password</h2>
-        <ChangePasswordForm />
-      </div>
+      {user?.providerData.some((p) => p.providerId === 'password') && (
+        <div className="space-y-3 rounded-xl border border-gray-800 p-4">
+          <h2 className="font-semibold text-white">Change Password</h2>
+          <ChangePasswordForm />
+        </div>
+      )}
 
-      {/* My posts */}
       {posts.length > 0 && (
         <div>
           <h2 className="mb-2 font-semibold text-white">My Posts</h2>
@@ -134,7 +144,6 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Danger zone */}
       <div className="space-y-3 rounded-xl border border-red-900/50 p-4">
         <h2 className="font-semibold text-red-400">Danger Zone</h2>
         <button
