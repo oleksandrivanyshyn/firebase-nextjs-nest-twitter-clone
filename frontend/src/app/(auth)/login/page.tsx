@@ -5,6 +5,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useSignIn, useSignInWithGoogle } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/auth/AuthCard';
+import { PhoneSignIn } from '@/components/auth/PhoneSignIn';
 
 const schema = z.object({
   email: z.string().email(),
@@ -112,6 +113,7 @@ export default function LoginPage() {
         </svg>
         {isGooglePending ? 'Connecting…' : 'Continue with Google'}
       </button>
+      <PhoneSignIn />
       <p className="text-center text-sm text-gray-500">
         No account?{' '}
         <Link href="/register" className="text-blue-400 hover:underline">

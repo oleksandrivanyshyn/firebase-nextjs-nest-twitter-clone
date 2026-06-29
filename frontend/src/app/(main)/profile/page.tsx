@@ -56,7 +56,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-lg space-y-8 p-6">
+    <div className="space-y-8 p-6">
       <h1 className="text-2xl font-bold text-white">Your Profile</h1>
 
       <div className="flex items-center gap-4">
