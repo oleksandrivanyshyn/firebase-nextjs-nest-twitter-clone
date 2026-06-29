@@ -8,6 +8,12 @@ import { FirebaseService } from '../../integrations/firebase/firebase.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+  return chunks;
+}
+
 @Injectable()
 export class PostsService {
   constructor(private readonly firebase: FirebaseService) {}
@@ -134,16 +140,17 @@ export class PostsService {
     if (data.userId !== uid) {
       throw new ForbiddenException('Not the author');
     }
-    const batch = this.firebase.db.batch();
-    batch.delete(this.col.doc(id));
-    const likeRefs = await this.col.doc(id).collection('likes').listDocuments();
-    likeRefs.forEach((ref) => batch.delete(ref));
-    const commentRefs = await this.col
-      .doc(id)
-      .collection('comments')
-      .listDocuments();
-    commentRefs.forEach((ref) => batch.delete(ref));
-    await batch.commit();
+    const postRef = this.col.doc(id);
+    const [likeRefs, commentRefs] = await Promise.all([
+      postRef.collection('likes').listDocuments(),
+      postRef.collection('comments').listDocuments(),
+    ]);
+    const allRefs = [postRef, ...likeRefs, ...commentRefs];
+    for (const chunk of chunkArray(allRefs, 490)) {
+      const batch = this.firebase.db.batch();
+      chunk.forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
     return { success: true };
   }
 }
