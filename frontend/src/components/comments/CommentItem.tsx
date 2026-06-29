@@ -9,6 +9,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useDeleteComment, useUpdateComment } from '@/hooks/useComments';
 import { useUser } from '@/hooks/useProfile';
 import { CommentForm } from './CommentForm';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 dayjs.extend(relativeTime);
 
@@ -123,17 +124,16 @@ export function CommentItem({ comment, postId, depth }: Props) {
                 >
                   <Pencil className="h-3 w-3" /> Edit
                 </button>
-                <button
-                  onClick={() => {
-                    if (confirm('Delete this comment?')) {
-                      deleteComment.mutate(comment.id);
-                    }
-                  }}
-                  aria-label="Delete comment"
-                  className="flex items-center gap-1 transition hover:text-red-400"
-                >
-                  <Trash2 className="h-3 w-3" /> Delete
-                </button>
+                <ConfirmDialog
+                  trigger={
+                    <button aria-label="Delete comment" className="flex items-center gap-1 transition hover:text-red-400">
+                      <Trash2 className="h-3 w-3" /> Delete
+                    </button>
+                  }
+                  title="Delete comment?"
+                  description="This action cannot be undone."
+                  onConfirm={() => deleteComment.mutate(comment.id)}
+                />
               </>
             )}
           </div>

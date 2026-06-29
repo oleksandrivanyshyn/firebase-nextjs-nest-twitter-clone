@@ -12,6 +12,7 @@ import { useDeletePost } from '@/hooks/usePosts';
 import { useMyReaction, useReact } from '@/hooks/useReactions';
 import { useUser } from '@/hooks/useProfile';
 import { EditPostModal } from './EditPostModal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import type { Post } from '@/types';
 
 dayjs.extend(relativeTime);
@@ -141,17 +142,16 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button
-                      onClick={() => {
-                        if (confirm('Delete this post?')) {
-                          deletePost.mutate(post.id, { onSuccess: onDeleted });
-                        }
-                      }}
-                      aria-label="Delete post"
-                      className="transition hover:text-red-400"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <ConfirmDialog
+                      trigger={
+                        <button aria-label="Delete post" className="transition hover:text-red-400">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      }
+                      title="Delete post?"
+                      description="This action cannot be undone."
+                      onConfirm={() => deletePost.mutate(post.id, { onSuccess: onDeleted })}
+                    />
                   </>
                 )}
               </div>

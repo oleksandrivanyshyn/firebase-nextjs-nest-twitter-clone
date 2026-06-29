@@ -6,6 +6,7 @@ import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
 import { PostCard } from '@/components/posts/PostCard';
 import { PostDetailModal } from '@/components/posts/PostDetailModal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { storageService } from '@/services/storage.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -158,18 +159,17 @@ export default function ProfilePage() {
         >
           Log out
         </button>
-        <button
-          onClick={() => {
-            if (
-              confirm('Delete your account permanently? This cannot be undone.')
-            ) {
-              deleteAccount.mutate();
-            }
-          }}
-          className="w-full rounded-lg bg-red-900/30 py-2 text-red-400 transition hover:bg-red-900/50"
-        >
-          Delete Account
-        </button>
+        <ConfirmDialog
+          trigger={
+            <button className="w-full rounded-lg bg-red-900/30 py-2 text-red-400 transition hover:bg-red-900/50">
+              Delete Account
+            </button>
+          }
+          title="Delete account permanently?"
+          description="All your posts, comments, and data will be removed. This cannot be undone."
+          confirmLabel="Delete Account"
+          onConfirm={() => deleteAccount.mutate()}
+        />
       </div>
     </div>
   );
