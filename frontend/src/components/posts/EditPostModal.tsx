@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ interface Props {
 
 export function EditPostModal({ post, onClose }: Props) {
   const [file, setFile] = useState<File | null>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
   const updatePost = useUpdatePost();
 
   const {
@@ -33,20 +34,42 @@ export function EditPostModal({ post, onClose }: Props) {
     defaultValues: { title: post.title, text: post.text },
   });
 
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
+  }, [onClose]);
+
   const onSubmit = async (data: FormData) => {
-    const photoURL = file
-      ? await storageService.uploadPostImage(file)
-      : post.photoURL;
+    let photoURL: string | null = removePhoto ? null : post.photoURL ?? null;
+    if (file) photoURL = await storageService.uploadPostImage(file);
     await updatePost.mutateAsync({ id: post.id, data: { ...data, photoURL } });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl bg-gray-900 p-6 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-modal-title"
+        className="w-full max-w-lg rounded-2xl bg-gray-900 p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Edit Tweet</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <h2 id="edit-modal-title" className="text-xl font-bold text-white">
+            Edit Tweet
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="text-gray-400 hover:text-white"
+          >
             <X />
           </button>
         </div>
@@ -74,16 +97,33 @@ export function EditPostModal({ post, onClose }: Props) {
               <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>
             )}
           </div>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
-            <ImagePlus className="h-5 w-5" />
-            {file ? file.name : post.photoURL ? 'Change photo' : 'Add photo'}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-          </label>
+          <div className="flex items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
+              <ImagePlus className="h-5 w-5" />
+              {file ? file.name : post.photoURL && !removePhoto ? 'Change photo' : 'Add photo'}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  setFile(e.target.files?.[0] ?? null);
+                  setRemovePhoto(false);
+                }}
+              />
+            </label>
+            {(post.photoURL || file) && !removePhoto && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFile(null);
+                  setRemovePhoto(true);
+                }}
+                className="text-sm text-red-400 hover:text-red-300"
+              >
+                Remove photo
+              </button>
+            )}
+          </div>
           {updatePost.isError && (
             <p className="text-sm text-red-400">
               {(updatePost.error as Error)?.message ?? 'Something went wrong'}

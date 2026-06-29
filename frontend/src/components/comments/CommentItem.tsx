@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import Image from 'next/image';
 import { Trash2, Pencil, Reply } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDeleteComment, useUpdateComment } from '@/hooks/useComments';
@@ -45,10 +46,11 @@ export function CommentItem({ comment, postId, depth }: Props) {
       <div className="flex gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-xs font-bold text-white">
           {author?.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={author.photoURL}
               alt="avatar"
+              width={32}
+              height={32}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -88,7 +90,10 @@ export function CommentItem({ comment, postId, depth }: Props) {
                   Save
                 </button>
                 <button
-                  onClick={() => setEditing(false)}
+                  onClick={() => {
+                    setEditText(comment.text);
+                    setEditing(false);
+                  }}
                   className="rounded-full border border-gray-700 px-4 py-1 text-xs text-gray-400"
                 >
                   Cancel
@@ -103,6 +108,7 @@ export function CommentItem({ comment, postId, depth }: Props) {
             {user && (
               <button
                 onClick={() => setReplying((r) => !r)}
+                aria-label="Reply to comment"
                 className="flex items-center gap-1 transition hover:text-white"
               >
                 <Reply className="h-3 w-3" /> Reply
@@ -112,12 +118,18 @@ export function CommentItem({ comment, postId, depth }: Props) {
               <>
                 <button
                   onClick={() => setEditing(true)}
+                  aria-label="Edit comment"
                   className="flex items-center gap-1 transition hover:text-yellow-400"
                 >
                   <Pencil className="h-3 w-3" /> Edit
                 </button>
                 <button
-                  onClick={() => deleteComment.mutate(comment.id)}
+                  onClick={() => {
+                    if (confirm('Delete this comment?')) {
+                      deleteComment.mutate(comment.id);
+                    }
+                  }}
+                  aria-label="Delete comment"
                   className="flex items-center gap-1 transition hover:text-red-400"
                 >
                   <Trash2 className="h-3 w-3" /> Delete

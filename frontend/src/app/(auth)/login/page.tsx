@@ -46,12 +46,14 @@ export default function LoginPage() {
         className="space-y-4"
       >
         <div>
-          <label className="block text-sm font-medium text-gray-300">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300">
             Email
           </label>
           <input
             {...register('email')}
+            id="email"
             type="email"
+            autoComplete="email"
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
             placeholder="you@example.com"
           />
@@ -60,12 +62,14 @@ export default function LoginPage() {
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-300">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-300">
             Password
           </label>
           <input
             {...register('password')}
+            id="password"
             type="password"
+            autoComplete="current-password"
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
             placeholder="••••••••"
           />

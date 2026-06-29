@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Home, User, PenSquare, LogOut, LogIn, UserPlus } from 'lucide-react';
 import { useSignOut } from '@/hooks/useAuth';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -10,7 +11,13 @@ import { CreatePostModal } from '@/components/posts/CreatePostModal';
 export function Sidebar() {
   const { user } = useAuthContext();
   const signOut = useSignOut();
+  const pathname = usePathname();
   const [showCreatePost, setShowCreatePost] = useState(false);
+
+  const navClass = (href: string) =>
+    `flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium transition hover:bg-gray-800 ${
+      pathname === href ? 'bg-gray-800 text-white font-bold' : 'text-gray-200'
+    }`;
 
   return (
     <>
@@ -19,19 +26,13 @@ export function Sidebar() {
           <div className="mb-6 text-2xl font-black text-blue-400">
             🐦 Tweeter
           </div>
-          <Link
-            href="/feed"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium text-gray-200 transition hover:bg-gray-800"
-          >
+          <Link href="/feed" className={navClass('/feed')}>
             <Home className="h-6 w-6" /> Home
           </Link>
 
           {user ? (
             <>
-              <Link
-                href="/profile"
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium text-gray-200 transition hover:bg-gray-800"
-              >
+              <Link href="/profile" className={navClass('/profile')}>
                 <User className="h-6 w-6" /> Profile
               </Link>
               <button
@@ -43,10 +44,7 @@ export function Sidebar() {
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium text-gray-200 transition hover:bg-gray-800"
-              >
+              <Link href="/login" className={navClass('/login')}>
                 <LogIn className="h-6 w-6" /> Log in
               </Link>
               <Link

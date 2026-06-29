@@ -36,27 +36,13 @@ export default function RegisterPage() {
     label: string;
     type: string;
     placeholder: string;
+    autoComplete: string;
   }> = [
-    { key: 'name', label: 'First Name', type: 'text', placeholder: 'John' },
-    { key: 'surname', label: 'Last Name', type: 'text', placeholder: 'Doe' },
-    {
-      key: 'email',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'you@example.com',
-    },
-    {
-      key: 'password',
-      label: 'Password',
-      type: 'password',
-      placeholder: '••••••••',
-    },
-    {
-      key: 'confirmPassword',
-      label: 'Confirm Password',
-      type: 'password',
-      placeholder: '••••••••',
-    },
+    { key: 'name', label: 'First Name', type: 'text', placeholder: 'John', autoComplete: 'given-name' },
+    { key: 'surname', label: 'Last Name', type: 'text', placeholder: 'Doe', autoComplete: 'family-name' },
+    { key: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com', autoComplete: 'email' },
+    { key: 'password', label: 'Password', type: 'password', placeholder: '••••••••', autoComplete: 'new-password' },
+    { key: 'confirmPassword', label: 'Confirm Password', type: 'password', placeholder: '••••••••', autoComplete: 'new-password' },
   ];
 
   return (
@@ -72,13 +58,15 @@ export default function RegisterPage() {
       >
         {fields.map((f) => (
           <div key={f.key}>
-            <label className="block text-sm font-medium text-gray-300">
+            <label htmlFor={f.key} className="block text-sm font-medium text-gray-300">
               {f.label}
             </label>
             <input
               {...register(f.key)}
+              id={f.key}
               type={f.type}
               placeholder={f.placeholder}
+              autoComplete={f.autoComplete}
               className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
             />
             {errors[f.key] && (

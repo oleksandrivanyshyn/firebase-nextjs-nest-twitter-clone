@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ThumbsUp, ThumbsDown, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -47,10 +48,11 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
           <Link href={`/user/${post.userId}`} className="shrink-0">
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-sm font-bold text-white">
               {author?.photoURL ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={author.photoURL}
                   alt="avatar"
+                  width={40}
+                  height={40}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -78,10 +80,11 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                 {post.text}
               </p>
               {post.photoURL && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={post.photoURL}
                   alt="post"
+                  width={800}
+                  height={320}
                   className="mt-2 max-h-80 w-full rounded-xl object-cover"
                 />
               )}
@@ -91,6 +94,8 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
               <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
                 <button
                   onClick={() => handleReact('like')}
+                  aria-label="Like"
+                  aria-pressed={reaction?.type === 'like'}
                   className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsUp
@@ -102,6 +107,8 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
 
                 <button
                   onClick={() => handleReact('dislike')}
+                  aria-label="Dislike"
+                  aria-pressed={reaction?.type === 'dislike'}
                   className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'dislike' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsDown
@@ -125,14 +132,18 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                   <>
                     <button
                       onClick={() => setShowEdit(true)}
+                      aria-label="Edit post"
                       className="ml-auto transition hover:text-yellow-400"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() =>
-                        deletePost.mutate(post.id, { onSuccess: onDeleted })
-                      }
+                      onClick={() => {
+                        if (confirm('Delete this post?')) {
+                          deletePost.mutate(post.id, { onSuccess: onDeleted });
+                        }
+                      }}
+                      aria-label="Delete post"
                       className="transition hover:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />

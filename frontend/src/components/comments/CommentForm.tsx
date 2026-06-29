@@ -55,7 +55,7 @@ export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
           disabled={!text.trim() || createComment.isPending}
           className="rounded-full bg-blue-600 px-4 py-1.5 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-50"
         >
-          {createComment.isPending ? 'Posting…' : 'Reply'}
+          {createComment.isPending ? 'Posting…' : parentCommentId ? 'Reply' : 'Comment'}
         </button>
       </div>
     </div>
