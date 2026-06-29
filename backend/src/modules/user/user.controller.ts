@@ -54,6 +54,7 @@ export class UserController {
     @Query('limit') limit = '20',
     @Query('startAfter') startAfter?: string,
   ) {
-    return this.postsService.findByUser(id, Number(limit), startAfter);
+    const parsedLimit = Math.min(Math.max(1, Number(limit) || 20), 50);
+    return this.postsService.findByUser(id, parsedLimit, startAfter);
   }
 }
