@@ -1,0 +1,35 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Build
+        run: npm run build
+        working-directory: backend
+
+      - name: Deploy to Firebase Functions
+        run: npx firebase-tools deploy --only functions --project twitter-clone-927ae --token ${{ secrets.FIREBASE_TOKEN }}
+        working-directory: backend
+        env:
+          FIREBASE_PROJECT_ID: twitter-clone-927ae
+          FRONTEND_URL: ${{ secrets.NEXT_PUBLIC_FRONTEND_URL }}
