@@ -5,6 +5,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
 import { PostCard } from '@/components/posts/PostCard';
+import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { storageService } from '@/services/storage.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +32,7 @@ export default function ProfilePage() {
   const updateProfile = useUpdateProfile();
   const deleteAccount = useDeleteAccount();
   const signOut = useSignOut();
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   const posts = postsData?.pages.flatMap((p) => p.posts) ?? [];
 
@@ -139,9 +141,13 @@ export default function ProfilePage() {
         <div>
           <h2 className="mb-2 font-semibold text-white">My Posts</h2>
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} onSelect={() => setSelectedPostId(post.id)} />
           ))}
         </div>
+      )}
+
+      {selectedPostId && (
+        <PostDetailModal postId={selectedPostId} onClose={() => setSelectedPostId(null)} />
       )}
 
       <div className="space-y-3 rounded-xl border border-red-900/50 p-4">

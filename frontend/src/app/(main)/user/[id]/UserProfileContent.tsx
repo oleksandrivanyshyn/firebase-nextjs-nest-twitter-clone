@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { PostCard } from '@/components/posts/PostCard';
+import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { useUser } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
 import dayjs from 'dayjs';
@@ -9,6 +11,7 @@ import dayjs from 'dayjs';
 export function UserProfileContent({ id }: { id: string }) {
   const { data: profile, isLoading, isError } = useUser(id);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useUserPosts(id);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? [];
 
@@ -56,8 +59,12 @@ export function UserProfileContent({ id }: { id: string }) {
       </div>
 
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} onSelect={() => setSelectedPostId(post.id)} />
       ))}
+
+      {selectedPostId && (
+        <PostDetailModal postId={selectedPostId} onClose={() => setSelectedPostId(null)} />
+      )}
 
       {hasNextPage && (
         <div className="flex justify-center p-4">

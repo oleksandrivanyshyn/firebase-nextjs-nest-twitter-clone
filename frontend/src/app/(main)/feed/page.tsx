@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { PostCard } from '@/components/posts/PostCard';
+import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { useFeed } from '@/hooks/usePosts';
 import { useDebounce } from '@/hooks/useDebounce';
 
 export default function FeedPage() {
   const [search, setSearch] = useState('');
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
 
   const {
@@ -39,8 +41,12 @@ export default function FeedPage() {
       )}
 
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} onSelect={() => setSelectedPostId(post.id)} />
       ))}
+
+      {selectedPostId && (
+        <PostDetailModal postId={selectedPostId} onClose={() => setSelectedPostId(null)} />
+      )}
 
       {isError && (
         <p className="p-8 text-center text-red-400">

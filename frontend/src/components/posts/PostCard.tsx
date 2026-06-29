@@ -18,11 +18,12 @@ dayjs.extend(relativeTime);
 
 interface Props {
   post: Post;
+  onSelect?: () => void;
   onDeleted?: () => void;
   showActions?: boolean;
 }
 
-export function PostCard({ post, onDeleted, showActions = true }: Props) {
+export function PostCard({ post, onSelect, onDeleted, showActions = true }: Props) {
   const { user } = useAuthContext();
   const router = useRouter();
   const isOwner = user?.uid === post.userId;
@@ -74,7 +75,10 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
               </span>
             </div>
 
-            <Link href={`/post/${post.id}`}>
+            <button
+              onClick={onSelect}
+              className="block w-full text-left"
+            >
               <h2 className="mt-1 font-medium text-gray-100">{post.title}</h2>
               <p className="mt-1 line-clamp-3 text-sm text-gray-400">
                 {post.text}
@@ -88,7 +92,7 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                   className="mt-2 max-h-80 w-full rounded-xl object-cover"
                 />
               )}
-            </Link>
+            </button>
 
             {showActions && (
               <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
@@ -120,13 +124,13 @@ export function PostCard({ post, onDeleted, showActions = true }: Props) {
                   {post.dislikesCount}
                 </button>
 
-                <Link
-                  href={`/post/${post.id}`}
+                <button
+                  onClick={onSelect}
                   className="flex items-center gap-1 transition hover:text-green-400"
                 >
                   <MessageCircle className="h-4 w-4" />
                   {post.commentsCount}
-                </Link>
+                </button>
 
                 {isOwner && (
                   <>
