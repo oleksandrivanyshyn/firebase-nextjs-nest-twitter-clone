@@ -5,6 +5,8 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useRegister } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/auth/AuthCard';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { PhoneSignIn } from '@/components/auth/PhoneSignIn';
 
 const schema = z
   .object({
@@ -84,6 +86,8 @@ export default function RegisterPage() {
           {isPending ? 'Creating account…' : 'Register'}
         </button>
       </form>
+      <GoogleSignInButton />
+      <PhoneSignIn />
       <p className="text-center text-sm text-gray-500">
         Already have an account?{' '}
         <Link href="/login" className="text-blue-400 hover:underline">
