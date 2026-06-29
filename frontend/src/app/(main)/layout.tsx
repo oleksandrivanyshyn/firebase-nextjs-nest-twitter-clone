@@ -35,10 +35,9 @@ export default function MainLayout({
   return (
     <div className="flex min-h-screen bg-gray-950 text-white">
       <Sidebar />
-      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800 pb-20 md:pb-0">
+      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800 pb-20 md:pb-0 lg:max-w-4xl xl:max-w-5xl">
         {children}
       </main>
-      <div className="hidden w-80 p-4 lg:block" />
       <BottomNav onNewTweet={() => setShowCreatePost(true)} />
       {showCreatePost && (
         <CreatePostModal onClose={() => setShowCreatePost(false)} />

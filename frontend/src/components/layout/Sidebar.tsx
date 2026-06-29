@@ -21,7 +21,7 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-64 flex-col justify-between border-r border-gray-800 p-6 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 flex-col justify-between border-r border-gray-800 p-6 md:flex xl:w-80">
         <div className="space-y-2">
           <div className="mb-6 text-2xl font-black text-blue-400">
             🐦 Tweeter
