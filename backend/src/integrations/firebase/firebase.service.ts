@@ -13,6 +13,7 @@ export class FirebaseService implements OnModuleInit {
 
   onModuleInit() {
     const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
+    if (!projectId) throw new Error('FIREBASE_PROJECT_ID env var is required');
 
     if (!admin.apps.length) {
       this.app = admin.initializeApp({

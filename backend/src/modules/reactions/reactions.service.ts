@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
 import { ReactDto } from './dto/react.dto';
+import { calcScore } from '../../common/helpers/score.helper';
 
 @Injectable()
 export class ReactionsService {
@@ -56,7 +57,7 @@ export class ReactionsService {
 
       const newLikes = likesCount + likeDelta;
       const newDislikes = dislikesCount + dislikeDelta;
-      const newScore = newLikes * 2 + commentsCount;
+      const newScore = calcScore(newLikes, commentsCount);
 
       tx.update(postRef, {
         likesCount: newLikes,

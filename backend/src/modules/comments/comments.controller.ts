@@ -15,11 +15,11 @@ import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
-@Controller()
+@Controller('posts/:postId/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post('posts/:postId/comments')
+  @Post()
   @UseGuards(AuthGuard)
   create(
     @Param('postId') postId: string,
@@ -29,12 +29,12 @@ export class CommentsController {
     return this.commentsService.create(postId, user.uid, dto);
   }
 
-  @Get('posts/:postId/comments')
+  @Get()
   findByPost(@Param('postId') postId: string) {
     return this.commentsService.findByPost(postId);
   }
 
-  @Put('posts/:postId/comments/:commentId')
+  @Put(':commentId')
   @UseGuards(AuthGuard)
   update(
     @Param('postId') postId: string,
@@ -45,7 +45,7 @@ export class CommentsController {
     return this.commentsService.update(commentId, postId, user.uid, dto);
   }
 
-  @Delete('posts/:postId/comments/:commentId')
+  @Delete(':commentId')
   @UseGuards(AuthGuard)
   remove(
     @Param('postId') postId: string,

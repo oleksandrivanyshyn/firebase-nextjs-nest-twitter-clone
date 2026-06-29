@@ -7,6 +7,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { calcScore } from '../../common/helpers/score.helper';
 
 @Injectable()
 export class CommentsService {
@@ -63,7 +64,7 @@ export class CommentsService {
       tx.set(commentRef, commentData);
       tx.update(postRef, {
         commentsCount: newCount,
-        score: ((post.likesCount as number) ?? 0) * 2 + newCount,
+        score: calcScore((post.likesCount as number) ?? 0, newCount),
       });
     });
 
@@ -134,7 +135,7 @@ export class CommentsService {
       repliesSnap.docs.forEach((doc) => tx.delete(doc.ref));
       tx.update(postRef, {
         commentsCount: newCount,
-        score: ((post.likesCount as number) ?? 0) * 2 + newCount,
+        score: calcScore((post.likesCount as number) ?? 0, newCount),
       });
     });
 
