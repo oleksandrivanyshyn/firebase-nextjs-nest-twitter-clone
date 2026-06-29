@@ -26,4 +26,4 @@ async function bootstrap() {
     `Backend running on http://localhost:${process.env.PORT ?? 5000}/api`,
   );
 }
-bootstrap();
+void bootstrap();

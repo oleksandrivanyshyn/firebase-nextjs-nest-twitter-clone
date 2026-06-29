@@ -5,7 +5,8 @@ import { FirebaseService } from '../../integrations/firebase/firebase.service';
 
 function chunkArray<T>(arr: T[], size: number): T[][] {
   const chunks: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+  for (let i = 0; i < arr.length; i += size)
+    chunks.push(arr.slice(i, i + size));
   return chunks;
 }
 
@@ -79,7 +80,10 @@ export class UserService {
       .collectionGroup('comments')
       .where('userId', '==', uid)
       .get();
-    for (const chunk of chunkArray(commentsSnap.docs.map((d) => d.ref), 490)) {
+    for (const chunk of chunkArray(
+      commentsSnap.docs.map((d) => d.ref),
+      490,
+    )) {
       const batch = db.batch();
       chunk.forEach((ref) => batch.delete(ref));
       await batch.commit();
