@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { PostCard } from '@/components/posts/PostCard';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { useUser } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
@@ -32,19 +32,7 @@ export function UserProfileContent({ id }: { id: string }) {
   return (
     <div>
       <div className="flex gap-4 border-b border-gray-800 p-6">
-        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-xl font-bold text-white">
-          {profile.photoURL ? (
-            <Image
-              src={profile.photoURL}
-              alt="avatar"
-              width={64}
-              height={64}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            (profile.name?.[0] ?? '?')
-          )}
-        </div>
+        <UserAvatar src={profile.photoURL} name={profile.name} className="h-16 w-16 text-xl" />
         <div>
           <h1 className="text-xl font-bold text-white">
             {profile.name} {profile.surname}

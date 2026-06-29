@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import Image from 'next/image';
 import { Trash2, Pencil, Reply } from 'lucide-react';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useDeleteComment, useUpdateComment } from '@/hooks/useComments';
 import { useUser } from '@/hooks/useProfile';
@@ -45,19 +45,7 @@ export function CommentItem({ comment, postId, depth }: Props) {
       className={`border-b border-gray-800 p-4 ${depth > 0 ? 'ml-8 border-l border-gray-700' : ''}`}
     >
       <div className="flex gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-xs font-bold text-white">
-          {author?.photoURL ? (
-            <Image
-              src={author.photoURL}
-              alt="avatar"
-              width={32}
-              height={32}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            (author?.name?.[0] ?? '?')
-          )}
-        </div>
+        <UserAvatar src={author?.photoURL} name={author?.name} className="h-8 w-8 text-xs" />
 
         <div className="flex-1">
           <div className="flex items-center gap-2 text-sm">

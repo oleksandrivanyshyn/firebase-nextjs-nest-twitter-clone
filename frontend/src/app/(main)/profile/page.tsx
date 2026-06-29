@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
 import { PostCard } from '@/components/posts/PostCard';
@@ -61,19 +61,7 @@ export default function ProfilePage() {
 
       <div className="flex items-center gap-4">
         <label className="cursor-pointer">
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-2xl font-bold text-white">
-            {profile?.photoURL ? (
-              <Image
-                src={profile.photoURL}
-                alt="avatar"
-                width={80}
-                height={80}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              (profile?.name?.[0] ?? '?')
-            )}
-          </div>
+          <UserAvatar src={profile?.photoURL} name={profile?.name} className="h-20 w-20 text-2xl" />
           <input
             type="file"
             accept="image/*"

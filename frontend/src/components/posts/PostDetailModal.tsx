@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
@@ -25,19 +26,7 @@ function Author({ userId }: { userId: string }) {
   const { data: author } = useUser(userId);
   return (
     <Link href={`/user/${userId}`} className="flex items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-700 text-sm font-bold text-white">
-        {author?.photoURL ? (
-          <Image
-            src={author.photoURL}
-            alt="avatar"
-            width={40}
-            height={40}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          (author?.name?.[0] ?? '?')
-        )}
-      </div>
+      <UserAvatar src={author?.photoURL} name={author?.name} className="h-10 w-10" />
       <span className="font-semibold text-white hover:underline">
         {author ? `${author.name} ${author.surname}` : '…'}
       </span>

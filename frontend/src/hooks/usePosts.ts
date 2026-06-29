@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { postsService } from '@/services/posts.service';
 
 export function useFeed(search: string) {
@@ -42,7 +43,11 @@ export function useCreatePost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: postsService.create,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['posts'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post created');
+    },
+    onError: () => toast.error('Failed to create post'),
   });
 }
 
@@ -60,7 +65,9 @@ export function useUpdatePost() {
       qc.invalidateQueries({ queryKey: ['posts'] });
       qc.invalidateQueries({ queryKey: ['post', id] });
       qc.invalidateQueries({ queryKey: ['userPosts'] });
+      toast.success('Post updated');
     },
+    onError: () => toast.error('Failed to update post'),
   });
 }
 
@@ -71,6 +78,8 @@ export function useDeletePost() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['posts'] });
       qc.invalidateQueries({ queryKey: ['userPosts'] });
+      toast.success('Post deleted');
     },
+    onError: () => toast.error('Failed to delete post'),
   });
 }

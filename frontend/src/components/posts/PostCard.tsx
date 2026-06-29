@@ -13,6 +13,7 @@ import { useMyReaction, useReact } from '@/hooks/useReactions';
 import { useUser } from '@/hooks/useProfile';
 import { EditPostModal } from './EditPostModal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import type { Post } from '@/types';
 
 dayjs.extend(relativeTime);
@@ -48,19 +49,7 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
       <article className="border-b border-gray-800 p-4 transition hover:bg-gray-900/50">
         <div className="flex gap-3">
           <Link href={`/user/${post.userId}`} className="shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-sm font-bold text-white">
-              {author?.photoURL ? (
-                <Image
-                  src={author.photoURL}
-                  alt="avatar"
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                (author?.name?.[0] ?? '?')
-              )}
-            </div>
+            <UserAvatar src={author?.photoURL} name={author?.name} className="h-10 w-10" />
           </Link>
 
           <div className="min-w-0 flex-1">
