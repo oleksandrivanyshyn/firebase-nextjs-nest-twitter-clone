@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { BottomNav } from '@/components/layout/BottomNav';
+import { CreatePostModal } from '@/components/posts/CreatePostModal';
 
 export default function MainLayout({
   children,
@@ -12,6 +14,7 @@ export default function MainLayout({
 }) {
   const { user, loading } = useAuthContext();
   const router = useRouter();
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,10 +35,14 @@ export default function MainLayout({
   return (
     <div className="flex min-h-screen bg-gray-950 text-white">
       <Sidebar />
-      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800">
+      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800 pb-20 md:pb-0">
         {children}
       </main>
       <div className="hidden w-80 p-4 lg:block" />
+      <BottomNav onNewTweet={() => setShowCreatePost(true)} />
+      {showCreatePost && (
+        <CreatePostModal onClose={() => setShowCreatePost(false)} />
+      )}
     </div>
   );
 }
