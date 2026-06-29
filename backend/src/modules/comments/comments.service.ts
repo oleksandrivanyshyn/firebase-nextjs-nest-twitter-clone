@@ -102,6 +102,10 @@ export class CommentsService {
     const postRef = db.collection('posts').doc(postId);
     const commentRef = this.comments(postId).doc(commentId);
 
+    const repliesSnap = await this.comments(postId)
+      .where('parentCommentId', '==', commentId)
+      .get();
+
     await db.runTransaction(async (tx) => {
       const [commentSnap, postSnap] = await Promise.all([
         tx.get(commentRef),
@@ -123,9 +127,11 @@ export class CommentsService {
         throw new NotFoundException('Post data not found');
       }
       const commentsCount = (post.commentsCount as number) ?? 0;
-      const newCount = Math.max(0, commentsCount - 1);
+      const deleteCount = 1 + repliesSnap.size;
+      const newCount = Math.max(0, commentsCount - deleteCount);
 
       tx.delete(commentRef);
+      repliesSnap.docs.forEach((doc) => tx.delete(doc.ref));
       tx.update(postRef, {
         commentsCount: newCount,
         score: ((post.likesCount as number) ?? 0) * 2 + newCount,
