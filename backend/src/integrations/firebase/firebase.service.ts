@@ -12,7 +12,10 @@ export class FirebaseService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
+    const projectId =
+      this.configService.get<string>('FIREBASE_PROJECT_ID') ??
+      process.env.GCLOUD_PROJECT ??
+      process.env.GOOGLE_CLOUD_PROJECT;
     if (!projectId) throw new Error('FIREBASE_PROJECT_ID env var is required');
 
     if (!admin.apps.length) {
