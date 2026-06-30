@@ -78,7 +78,7 @@ export default function LoginPage() {
         <Button
           type="submit"
           disabled={isSigningIn}
-          className="w-full bg-blue-600 py-2.5 font-semibold hover:bg-blue-500"
+          className="w-full bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-500"
         >
           {isSigningIn ? 'Signing in…' : 'Sign In'}
         </Button>

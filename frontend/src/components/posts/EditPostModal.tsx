@@ -115,7 +115,7 @@ export function EditPostModal({ post, onClose }: Props) {
               <Button
                 type="submit"
                 disabled={isSubmitting || updatePost.isPending}
-                className="rounded-full bg-blue-600 px-5 font-bold hover:bg-blue-500"
+                className="rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-500"
               >
                 {isSubmitting || updatePost.isPending ? 'Saving…' : 'Save'}
               </Button>

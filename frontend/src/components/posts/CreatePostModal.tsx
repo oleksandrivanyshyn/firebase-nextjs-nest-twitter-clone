@@ -103,7 +103,7 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
               <Button
                 type="submit"
                 disabled={isSubmitting || createPost.isPending}
-                className="rounded-full bg-blue-600 px-5 font-bold hover:bg-blue-500"
+                className="rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-500"
               >
                 {isSubmitting || createPost.isPending ? 'Posting…' : 'Tweet'}
               </Button>
