@@ -18,6 +18,7 @@ export function useReact(postId: string) {
       qc.invalidateQueries({ queryKey: ['posts'] });
       qc.invalidateQueries({ queryKey: ['post', postId] });
       qc.invalidateQueries({ queryKey: ['reaction', postId] });
+      qc.invalidateQueries({ queryKey: ['userPosts'] });
     },
   });
 }
