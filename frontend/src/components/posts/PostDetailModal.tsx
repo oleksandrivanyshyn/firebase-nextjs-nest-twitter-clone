@@ -83,7 +83,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
                     alt="post"
                     width={800}
                     height={400}
-                    className="w-full rounded-xl object-cover"
+                    className="w-full rounded-xl object-contain"
                   />
                 )}
 

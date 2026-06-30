@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { storageService } from '@/services/storage.service';
 import { useCreatePost } from '@/hooks/usePosts';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
 
@@ -49,10 +50,10 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-modal-title"
-        className="w-full max-w-lg rounded-2xl bg-gray-900 p-6 shadow-2xl"
+        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-gray-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center justify-between p-6 pb-4">
           <h2 id="create-modal-title" className="text-xl font-bold text-white">
             New Tweet
           </h2>
@@ -64,7 +65,8 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
             <X />
           </button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <ScrollArea className="flex-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-6 pb-6">
           <div>
             <input
               {...register('title')}
@@ -91,13 +93,13 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
             )}
           </div>
           {preview && (
-            <div className="relative">
+            <div className="relative flex max-h-60 items-center justify-center overflow-hidden rounded-xl bg-gray-950">
               <Image
                 src={preview}
                 alt="preview"
                 width={800}
                 height={600}
-                className="w-full rounded-xl object-contain"
+                className="max-h-60 w-full object-contain"
               />
               <button
                 type="button"
@@ -144,6 +146,7 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </form>
+        </ScrollArea>
       </div>
     </div>
   );
