@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { algoliasearch } from 'algoliasearch';
 
@@ -6,6 +6,7 @@ export interface AlgoliaPost {
   objectID: string;
   id: string;
   userId: string;
+  authorName: string;
   title: string;
   text: string;
   photoURL: string | null;
@@ -17,7 +18,7 @@ export interface AlgoliaPost {
 }
 
 @Injectable()
-export class AlgoliaService {
+export class AlgoliaService implements OnModuleInit {
   private readonly client;
   private readonly indexName: string;
 
@@ -27,6 +28,15 @@ export class AlgoliaService {
       config.get<string>('ALGOLIA_API_KEY')!,
     );
     this.indexName = config.get<string>('ALGOLIA_INDEX_NAME') ?? 'posts';
+  }
+
+  async onModuleInit() {
+    await this.client.setSettings({
+      indexName: this.indexName,
+      indexSettings: {
+        searchableAttributes: ['title', 'text', 'authorName'],
+      },
+    });
   }
 
   async savePost(post: Omit<AlgoliaPost, 'objectID'>) {

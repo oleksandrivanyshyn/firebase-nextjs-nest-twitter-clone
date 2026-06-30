@@ -63,7 +63,10 @@ export class PostsService {
     };
     await ref.set(data);
     const post = { ...data, id: ref.id, createdAt: new Date().toISOString() };
-    void this.algolia.savePost(post);
+    const userSnap = await this.firebase.db.collection('users').doc(uid).get();
+    const userData = userSnap.data();
+    const authorName = userData ? `${userData.name} ${userData.surname}`.trim() : '';
+    void this.algolia.savePost({ ...post, authorName });
     return post;
   }
 
