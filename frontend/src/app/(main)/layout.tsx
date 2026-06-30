@@ -5,6 +5,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function MainLayout({
   children,
@@ -23,11 +24,13 @@ export default function MainLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950 text-white">
+    <div className="flex h-screen bg-gray-950 text-white">
       <Sidebar />
-      <main className="mx-auto min-h-screen max-w-2xl flex-1 border-x border-gray-800 pb-20 md:pb-0 lg:max-w-4xl xl:max-w-5xl">
-        {children}
-      </main>
+      <ScrollArea className="flex-1">
+        <main className="mx-auto max-w-2xl border-x border-gray-800 pb-20 md:pb-0 lg:max-w-4xl xl:max-w-5xl">
+          {children}
+        </main>
+      </ScrollArea>
       <BottomNav onNewTweet={() => setShowCreatePost(true)} />
       {showCreatePost && (
         <CreatePostModal onClose={() => setShowCreatePost(false)} />
