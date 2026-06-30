@@ -18,7 +18,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useSignOut } from '@/hooks/useAuth';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Required'),
@@ -27,8 +28,13 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
-  const { user } = useAuthContext();
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
   const { data: profile } = useMe(!!user);
+
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+  }, [user, loading, router]);
   const { data: postsData } = useUserPosts(user?.uid ?? '');
   const updateProfile = useUpdateProfile();
   const deleteAccount = useDeleteAccount();
