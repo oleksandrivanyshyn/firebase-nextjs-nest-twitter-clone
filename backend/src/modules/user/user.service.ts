@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
+import { AlgoliaService } from '../../integrations/algolia/algolia.service';
 
 function chunkArray<T>(arr: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -20,7 +21,10 @@ export interface UserProfile {
 
 @Injectable()
 export class UserService {
-  constructor(private readonly firebase: FirebaseService) {}
+  constructor(
+    private readonly firebase: FirebaseService,
+    private readonly algolia: AlgoliaService,
+  ) {}
 
   private get col() {
     return this.firebase.db.collection('users');
@@ -89,7 +93,10 @@ export class UserService {
       await batch.commit();
     }
 
+    const postIds = postsSnap.docs.map((d) => d.id);
     await this.col.doc(uid).delete();
     await this.firebase.auth.deleteUser(uid);
+    void this.algolia.deletePosts(postIds);
+    return { success: true };
   }
 }
