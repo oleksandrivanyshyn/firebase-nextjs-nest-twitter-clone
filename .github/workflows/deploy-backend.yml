@@ -30,6 +30,3 @@ jobs:
       - name: Deploy to Firebase Functions
         run: npx firebase-tools deploy --only functions --project twitter-clone-927ae --token ${{ secrets.FIREBASE_TOKEN }}
         working-directory: backend
-        env:
-          FIREBASE_PROJECT_ID: twitter-clone-927ae
-          FRONTEND_URL: ${{ secrets.NEXT_PUBLIC_FRONTEND_URL }}
