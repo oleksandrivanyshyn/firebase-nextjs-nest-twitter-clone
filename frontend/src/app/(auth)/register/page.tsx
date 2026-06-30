@@ -7,6 +7,7 @@ import { useRegister } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/auth/AuthCard';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { PhoneSignIn } from '@/components/auth/PhoneSignIn';
+import { Button } from '@/components/ui/button';
 
 const schema = z
   .object({
@@ -78,13 +79,13 @@ export default function RegisterPage() {
             )}
           </div>
         ))}
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+          className="w-full bg-blue-600 py-2.5 font-semibold hover:bg-blue-500"
         >
           {isPending ? 'Creating account…' : 'Register'}
-        </button>
+        </Button>
       </form>
       <GoogleSignInButton />
       <PhoneSignIn />

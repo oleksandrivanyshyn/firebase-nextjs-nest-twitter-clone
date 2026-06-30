@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSendPasswordReset } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/auth/AuthCard';
+import { Button } from '@/components/ui/button';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -51,13 +52,13 @@ export default function ForgotPasswordPage() {
                 placeholder="you@example.com"
               />
             </div>
-            <button
+            <Button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+              className="w-full bg-blue-600 py-2.5 font-semibold hover:bg-blue-500"
             >
               {isPending ? 'Sending…' : 'Send Reset Email'}
-            </button>
+            </Button>
           </form>
           <p className="text-center text-sm text-gray-500">
             <Link href="/login" className="text-blue-400 hover:underline">

@@ -1,14 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
+import { ImagePlus, X } from 'lucide-react';
 import { storageService } from '@/services/storage.service';
 import { useCreatePost } from '@/hooks/usePosts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Image from 'next/image';
-import { X, ImagePlus } from 'lucide-react';
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -16,24 +20,16 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
+const inputClass = 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:border-blue-500';
+
 export function CreatePostModal({ onClose }: { onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const createPost = useCreatePost();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
-
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', fn);
-    return () => window.removeEventListener('keydown', fn);
-  }, [onClose]);
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
 
   const onSubmit = async (data: FormData) => {
     const photoURL = file ? await storageService.uploadPostImage(file) : null;
@@ -41,113 +37,80 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
+  const handleFile = (f: File | null) => {
+    setFile(f);
+    setPreview(f ? URL.createObjectURL(f) : null);
+  };
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="create-modal-title"
-        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-gray-900 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-6 pb-4">
-          <h2 id="create-modal-title" className="text-xl font-bold text-white">
-            New Tweet
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="text-gray-400 hover:text-white"
-          >
-            <X />
-          </button>
-        </div>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-lg flex-col gap-0 bg-gray-900 p-0 text-white">
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle>New Tweet</DialogTitle>
+        </DialogHeader>
+
         <ScrollArea className="flex-1">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-6 pb-6">
-          <div>
-            <input
-              {...register('title')}
-              id="create-title"
-              placeholder="Title"
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-            />
-            {errors.title && (
-              <p className="mt-1 text-xs text-red-400">
-                {errors.title.message}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-6 pb-6 pt-4">
+            <div>
+              <Input {...register('title')} placeholder="Title" className={inputClass} />
+              {errors.title && <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>}
+            </div>
+
+            <div>
+              <Textarea
+                {...register('text')}
+                rows={4}
+                placeholder="What's happening?"
+                className={`resize-none ${inputClass}`}
+              />
+              {errors.text && <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>}
+            </div>
+
+            {preview && (
+              <div className="relative flex max-h-60 items-center justify-center overflow-hidden rounded-xl bg-gray-950">
+                <Image src={preview} alt="preview" width={800} height={600} className="max-h-60 w-full object-contain" />
+                <button
+                  type="button"
+                  onClick={() => handleFile(null)}
+                  className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
+              <ImagePlus className="h-5 w-5" />
+              {file ? file.name : 'Add photo'}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+              />
+            </label>
+
+            {createPost.isError && (
+              <p className="text-sm text-red-400">
+                {(createPost.error as Error)?.message ?? 'Something went wrong'}
               </p>
             )}
-          </div>
-          <div>
-            <textarea
-              {...register('text')}
-              id="create-text"
-              rows={4}
-              placeholder="What's happening?"
-              className="w-full resize-none rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-            />
-            {errors.text && (
-              <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>
-            )}
-          </div>
-          {preview && (
-            <div className="relative flex max-h-60 items-center justify-center overflow-hidden rounded-xl bg-gray-950">
-              <Image
-                src={preview}
-                alt="preview"
-                width={800}
-                height={600}
-                className="max-h-60 w-full object-contain"
-              />
-              <button
-                type="button"
-                onClick={() => { setFile(null); setPreview(null); }}
-                className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || createPost.isPending}
+                className="rounded-full bg-blue-600 px-5 font-bold hover:bg-blue-500"
               >
-                <X className="h-4 w-4" />
-              </button>
+                {isSubmitting || createPost.isPending ? 'Posting…' : 'Tweet'}
+              </Button>
             </div>
-          )}
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
-            <ImagePlus className="h-5 w-5" />
-            {file ? file.name : 'Add photo'}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0] ?? null;
-                setFile(f);
-                setPreview(f ? URL.createObjectURL(f) : null);
-              }}
-            />
-          </label>
-          {createPost.isError && (
-            <p className="text-sm text-red-400">
-              {(createPost.error as Error)?.message ?? 'Something went wrong'}
-            </p>
-          )}
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full px-5 py-2 text-gray-400 hover:bg-gray-800"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || createPost.isPending}
-              className="rounded-full bg-blue-600 px-5 py-2 font-bold text-white hover:bg-blue-500 disabled:opacity-50"
-            >
-              {isSubmitting || createPost.isPending ? 'Posting…' : 'Tweet'}
-            </button>
-          </div>
-        </form>
+          </form>
         </ScrollArea>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -6,6 +6,8 @@ import { UserAvatar } from '@/components/ui/user-avatar';
 import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { useUser } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
+import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 import dayjs from 'dayjs';
 
 export function UserProfileContent({ id }: { id: string }) {
@@ -18,7 +20,7 @@ export function UserProfileContent({ id }: { id: string }) {
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -56,13 +58,14 @@ export function UserProfileContent({ id }: { id: string }) {
 
       {hasNextPage && (
         <div className="flex justify-center p-4">
-          <button
+          <Button
+            variant="outline"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="rounded-full border border-gray-700 px-6 py-2 text-sm text-gray-300 transition hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-full border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
           >
             {isFetchingNextPage ? 'Loading…' : 'Load more'}
-          </button>
+          </Button>
         </div>
       )}
     </div>

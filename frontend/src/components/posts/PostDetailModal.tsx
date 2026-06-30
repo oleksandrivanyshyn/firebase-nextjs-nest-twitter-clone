@@ -20,6 +20,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useUser } from '@/hooks/useProfile';
 import { CommentTree } from '@/components/comments/CommentTree';
 import { CommentForm } from '@/components/comments/CommentForm';
+import { Spinner } from '@/components/ui/spinner';
 
 dayjs.extend(relativeTime);
 
@@ -61,7 +62,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
         <ScrollArea className="max-h-[75vh]">
           {isLoading && (
             <div className="flex justify-center p-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+              <Spinner />
             </div>
           )}
 
