@@ -78,8 +78,8 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
                   src={post.photoURL}
                   alt="post"
                   width={800}
-                  height={320}
-                  className="mt-2 max-h-80 w-full rounded-xl object-cover"
+                  height={600}
+                  className="mt-2 w-full rounded-xl object-contain"
                 />
               )}
             </button>

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { storageService } from '@/services/storage.service';
 import { useCreatePost } from '@/hooks/usePosts';
+import Image from 'next/image';
 import { X, ImagePlus } from 'lucide-react';
 
 const schema = z.object({
@@ -16,6 +17,7 @@ type FormData = z.infer<typeof schema>;
 
 export function CreatePostModal({ onClose }: { onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const createPost = useCreatePost();
 
   const {
@@ -88,6 +90,24 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
               <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>
             )}
           </div>
+          {preview && (
+            <div className="relative">
+              <Image
+                src={preview}
+                alt="preview"
+                width={800}
+                height={600}
+                className="w-full rounded-xl object-contain"
+              />
+              <button
+                type="button"
+                onClick={() => { setFile(null); setPreview(null); }}
+                className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
             <ImagePlus className="h-5 w-5" />
             {file ? file.name : 'Add photo'}
@@ -95,7 +115,11 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null;
+                setFile(f);
+                setPreview(f ? URL.createObjectURL(f) : null);
+              }}
             />
           </label>
           {createPost.isError && (
