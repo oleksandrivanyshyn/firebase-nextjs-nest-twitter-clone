@@ -73,7 +73,10 @@ export class PostsService {
   async findAll(limit = 10, startAfter?: string, q?: string) {
     if (q) {
       const hits = await this.algolia.search(q, limit);
-      return { posts: hits, nextCursor: null };
+      if (!hits.length) return { posts: [], nextCursor: null };
+      const snaps = await Promise.all(hits.map((h) => this.col.doc(h.id).get()));
+      const posts = snaps.filter((s) => s.exists).map((s) => this.toData(s));
+      return { posts, nextCursor: null };
     }
 
     let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = this.col
