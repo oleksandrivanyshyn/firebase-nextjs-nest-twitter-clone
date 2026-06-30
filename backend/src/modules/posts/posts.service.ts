@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
+import { AlgoliaService } from '../../integrations/algolia/algolia.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
@@ -17,7 +18,10 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly firebase: FirebaseService) {}
+  constructor(
+    private readonly firebase: FirebaseService,
+    private readonly algolia: AlgoliaService,
+  ) {}
 
   private get col() {
     return this.firebase.db.collection('posts');
@@ -58,35 +62,31 @@ export class PostsService {
       createdAt: FieldValue.serverTimestamp(),
     };
     await ref.set(data);
-    return { ...data, id: ref.id, createdAt: new Date().toISOString() };
+    const post = { ...data, id: ref.id, createdAt: new Date().toISOString() };
+    void this.algolia.savePost(post);
+    return post;
   }
 
   async findAll(limit = 10, startAfter?: string, q?: string) {
-    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
-      this.col;
     if (q) {
-      query = query
-        .where('title', '>=', q)
-        .where('title', '<=', q + '\uf8ff')
-        .orderBy('title');
-    } else {
-      query = query.orderBy('score', 'desc').orderBy('createdAt', 'desc');
+      const hits = await this.algolia.search(q, limit);
+      return { posts: hits, nextCursor: null };
     }
-    query = query.limit(limit + 1);
+
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = this.col
+      .orderBy('score', 'desc')
+      .orderBy('createdAt', 'desc')
+      .limit(limit + 1);
+
     if (startAfter) {
       const cursor = await this.col.doc(startAfter).get();
-      if (cursor.exists) {
-        query = query.startAfter(cursor);
-      }
+      if (cursor.exists) query = query.startAfter(cursor);
     }
     const snaps = await query.get();
     const docs = snaps.docs;
     const hasMore = docs.length > limit;
-    const items = (hasMore ? docs.slice(0, limit) : docs).map((s) =>
-      this.toData(s),
-    );
-    const nextCursor = hasMore ? items[items.length - 1].id : null;
-    return { posts: items, nextCursor };
+    const items = (hasMore ? docs.slice(0, limit) : docs).map((s) => this.toData(s));
+    return { posts: items, nextCursor: hasMore ? items[items.length - 1].id : null };
   }
 
   async findByUser(userId: string, limit = 20, startAfter?: string) {
@@ -129,6 +129,13 @@ export class PostsService {
       throw new ForbiddenException('Not the author');
     }
     await this.col.doc(id).update({ ...dto });
+    if (dto.title !== undefined || dto.text !== undefined || dto.photoURL !== undefined) {
+      void this.algolia.updatePost(id, {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.text !== undefined && { text: dto.text }),
+        ...(dto.photoURL !== undefined && { photoURL: dto.photoURL }),
+      });
+    }
     return this.findOne(id);
   }
 
@@ -152,6 +159,7 @@ export class PostsService {
       chunk.forEach((ref) => batch.delete(ref));
       await batch.commit();
     }
+    void this.algolia.deletePost(id);
     return { success: true };
   }
 }
