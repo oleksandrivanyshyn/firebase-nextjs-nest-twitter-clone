@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useCreateComment } from '@/hooks/useComments';
+import { useMe } from '@/hooks/useProfile';
+import { UserAvatar } from '@/components/ui/user-avatar';
 
 interface Props {
   postId: string;
@@ -13,6 +15,7 @@ interface Props {
 
 export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
   const { user } = useAuthContext();
+  const { data: profile } = useMe(!!user);
   const [text, setText] = useState('');
   const createComment = useCreateComment(postId);
 
@@ -29,9 +32,7 @@ export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
 
   return (
     <div className="flex gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-bold text-white">
-        {user.displayName?.[0] ?? user.email?.[0]?.toUpperCase() ?? '?'}
-      </div>
+      <UserAvatar src={profile?.photoURL} name={profile?.name} className="h-8 w-8 shrink-0 text-xs" />
       <div className="flex-1 space-y-2">
         <textarea
           value={text}
