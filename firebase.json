@@ -19,6 +19,11 @@
   },
   "functions": {
     "source": "backend",
-    "runtime": "nodejs20"
+    "runtime": "nodejs20",
+    "environmentVariables": {
+      "FIREBASE_PROJECT_ID": "twitter-clone-927ae",
+      "ALGOLIA_INDEX_NAME": "posts",
+      "FRONTEND_URL": "https://twitter-clone-927ae.web.app"
+    }
   }
 }
