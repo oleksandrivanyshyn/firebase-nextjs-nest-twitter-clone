@@ -37,8 +37,8 @@ export function ConfirmDialog({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="border-gray-700 bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white">
+        <AlertDialogFooter className="border-gray-800 bg-gray-900">
+          <AlertDialogCancel variant="ghost" className="border border-gray-700 !bg-transparent !text-gray-300 hover:!bg-gray-800 hover:!text-white">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
