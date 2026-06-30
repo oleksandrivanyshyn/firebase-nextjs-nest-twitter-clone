@@ -24,8 +24,8 @@ export class AlgoliaService implements OnModuleInit {
 
   constructor(private readonly config: ConfigService) {
     this.client = algoliasearch(
-      config.get<string>('ALGOLIA_APP_ID')!,
-      config.get<string>('ALGOLIA_API_KEY')!,
+      config.get<string>('ALGOLIA_APP_ID')!.trim(),
+      config.get<string>('ALGOLIA_API_KEY')!.trim(),
     );
     this.indexName = config.get<string>('ALGOLIA_INDEX_NAME') ?? 'posts';
   }
