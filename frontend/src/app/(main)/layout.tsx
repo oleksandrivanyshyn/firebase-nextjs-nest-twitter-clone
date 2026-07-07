@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function MainLayout({
@@ -12,22 +14,28 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { loading } = useAuthContext();
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
   const [showCreatePost, setShowCreatePost] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+  }, [user, loading, router]);
+
+  if (loading || !user) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-950">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-950 text-white">
+    <div className="flex h-screen bg-background text-foreground">
       <Sidebar />
       <ScrollArea className="flex-1">
-        <main className="mx-auto max-w-2xl border-x border-gray-800 pb-20 md:pb-0 lg:max-w-4xl xl:max-w-5xl">
+        <main className="mx-auto max-w-2xl border-x border-border pb-20 md:pb-0 lg:max-w-4xl xl:max-w-5xl">
+          <EmailVerificationBanner />
           {children}
         </main>
       </ScrollArea>
