@@ -15,6 +15,10 @@
     ],
     "rewrites": [
       {
+        "source": "/user/**",
+        "destination": "/user/placeholder/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
