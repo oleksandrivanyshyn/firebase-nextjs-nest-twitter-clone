@@ -32,7 +32,7 @@ export function CommentTree({ comments, postId }: Props) {
   const tree = buildTree(comments);
 
   if (!tree.length) {
-    return <p className="p-4 text-sm text-gray-500">No comments yet.</p>;
+    return <p className="p-4 text-sm text-muted-foreground">No comments yet.</p>;
   }
 
   return (

@@ -7,6 +7,7 @@ import { useSignOut } from '@/hooks/useAuth';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Sidebar() {
   const { user } = useAuthContext();
@@ -15,13 +16,13 @@ export function Sidebar() {
   const [showCreatePost, setShowCreatePost] = useState(false);
 
   const navClass = (href: string) =>
-    `flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium transition hover:bg-gray-800 ${
-      pathname === href ? 'bg-gray-800 text-white font-bold' : 'text-gray-200'
+    `flex items-center gap-3 rounded-xl px-4 py-3 text-lg font-medium transition hover:bg-accent ${
+      pathname === href ? 'bg-accent text-foreground font-bold' : 'text-muted-foreground'
     }`;
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-64 flex-col justify-between border-r border-gray-800 p-6 md:flex xl:w-80">
+      <aside className="sticky top-0 hidden h-screen w-64 flex-col justify-between border-r border-border p-6 md:flex xl:w-80">
         <div className="space-y-2">
           <div className="mb-6 text-2xl font-black text-blue-400">
             🐦 Tweeter
@@ -57,14 +58,17 @@ export function Sidebar() {
           )}
         </div>
 
-        {user && (
-          <button
-            onClick={() => signOut.mutate()}
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-400 transition hover:bg-gray-800 hover:text-white"
-          >
-            <LogOut className="h-5 w-5" /> Log out
-          </button>
-        )}
+        <div className="space-y-2">
+          {user && (
+            <button
+              onClick={() => signOut.mutate()}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+            >
+              <LogOut className="h-5 w-5" /> Log out
+            </button>
+          )}
+          <ThemeToggle className="ml-1" />
+        </div>
       </aside>
 
       {showCreatePost && (

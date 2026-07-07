@@ -42,17 +42,17 @@ export function CommentItem({ comment, postId, depth }: Props) {
 
   return (
     <div
-      className={`border-b border-gray-800 p-4 ${depth > 0 ? 'ml-8 border-l border-gray-700' : ''}`}
+      className={`border-b border-border p-4 ${depth > 0 ? 'ml-8 border-l border-border' : ''}`}
     >
       <div className="flex gap-3">
         <UserAvatar src={author?.photoURL} name={author?.name} className="h-8 w-8 text-xs" />
 
         <div className="flex-1">
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-foreground">
               {author ? `${author.name} ${author.surname}` : '…'}
             </span>
-            <span className="text-gray-500">
+            <span className="text-muted-foreground">
               {dayjs(comment.createdAt).fromNow()}
             </span>
           </div>
@@ -63,7 +63,7 @@ export function CommentItem({ comment, postId, depth }: Props) {
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
                 rows={2}
-                className="w-full resize-none rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                className="w-full resize-none rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground focus:border-blue-500 focus:outline-none"
               />
               <div className="flex gap-2">
                 <button
@@ -83,22 +83,22 @@ export function CommentItem({ comment, postId, depth }: Props) {
                     setEditText(comment.text);
                     setEditing(false);
                   }}
-                  className="rounded-full border border-gray-700 px-4 py-1 text-xs text-gray-400"
+                  className="rounded-full border border-border px-4 py-1 text-xs text-muted-foreground"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
-            <p className="mt-1 text-sm text-gray-300">{comment.text}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{comment.text}</p>
           )}
 
-          <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
+          <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
             {user && (
               <button
                 onClick={() => setReplying((r) => !r)}
                 aria-label="Reply to comment"
-                className="flex items-center gap-1 transition hover:text-white"
+                className="flex items-center gap-1 transition hover:text-foreground"
               >
                 <Reply className="h-3 w-3" /> Reply
               </button>

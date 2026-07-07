@@ -15,7 +15,7 @@ export function GoogleSignInButton() {
         type="button"
         onClick={() => mutate()}
         disabled={isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-700 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-gray-800 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent disabled:opacity-50"
       >
         <FcGoogle className="h-5 w-5" />
         {isPending ? 'Connecting…' : 'Continue with Google'}

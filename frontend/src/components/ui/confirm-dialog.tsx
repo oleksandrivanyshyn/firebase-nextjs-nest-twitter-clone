@@ -30,15 +30,15 @@ export function ConfirmDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
-      <AlertDialogContent className="bg-gray-900 text-white">
+      <AlertDialogContent className="bg-card text-card-foreground">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-400">
+          <AlertDialogDescription className="text-muted-foreground">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="border-gray-800 bg-gray-900">
-          <AlertDialogCancel variant="ghost" className="border border-gray-700 !bg-transparent !text-gray-300 hover:!bg-gray-800 hover:!text-white">
+        <AlertDialogFooter className="border-border bg-card">
+          <AlertDialogCancel variant="ghost" className="border border-border !bg-transparent !text-muted-foreground hover:!bg-accent hover:!text-foreground">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction

@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
             className="space-y-4"
           >
             <div>
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-muted-foreground">
                 Email
               </label>
               <input
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
                 placeholder="you@example.com"
               />
             </div>
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
               {isPending ? 'Sending…' : 'Send Reset Email'}
             </Button>
           </form>
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-muted-foreground">
             <Link href="/login" className="text-blue-400 hover:underline">
               Back to login
             </Link>
