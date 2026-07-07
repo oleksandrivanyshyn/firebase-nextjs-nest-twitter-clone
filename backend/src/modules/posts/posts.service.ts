@@ -70,19 +70,32 @@ export class PostsService {
     return post;
   }
 
-  async findAll(limit = 10, startAfter?: string, q?: string) {
+  async findAll(
+    limit = 10,
+    startAfter?: string,
+    q?: string,
+    sort: 'top' | 'new' = 'top',
+    userId?: string,
+  ) {
     if (q) {
       const hits = await this.algolia.search(q, limit);
-      if (!hits.length) return { posts: [], nextCursor: null };
-      const snaps = await Promise.all(hits.map((h) => this.col.doc(h.id).get()));
+      const filtered = userId ? hits.filter((h) => h.userId === userId) : hits;
+      if (!filtered.length) return { posts: [], nextCursor: null };
+      const snaps = await Promise.all(
+        filtered.map((h) => this.col.doc(h.id).get()),
+      );
       const posts = snaps.filter((s) => s.exists).map((s) => this.toData(s));
       return { posts, nextCursor: null };
     }
 
-    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = this.col
-      .orderBy('score', 'desc')
-      .orderBy('createdAt', 'desc')
-      .limit(limit + 1);
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
+      this.col;
+    if (userId) query = query.where('userId', '==', userId);
+    query =
+      sort === 'new'
+        ? query.orderBy('createdAt', 'desc')
+        : query.orderBy('score', 'desc').orderBy('createdAt', 'desc');
+    query = query.limit(limit + 1);
 
     if (startAfter) {
       const cursor = await this.col.doc(startAfter).get();

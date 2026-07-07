@@ -31,9 +31,17 @@ export class PostsController {
     @Query('limit') limit = '10',
     @Query('startAfter') startAfter?: string,
     @Query('q') q?: string,
+    @Query('sort') sort?: 'top' | 'new',
+    @Query('userId') userId?: string,
   ) {
     const parsedLimit = Math.min(Math.max(1, Number(limit) || 10), 50);
-    return this.postsService.findAll(parsedLimit, startAfter, q);
+    return this.postsService.findAll(
+      parsedLimit,
+      startAfter,
+      q,
+      sort === 'new' ? 'new' : 'top',
+      userId,
+    );
   }
 
   @Get(':id')
