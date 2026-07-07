@@ -26,7 +26,7 @@ export interface UserProfile {
   name: string;
   surname: string;
   photoURL: string | null;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 export interface PaginatedPosts {

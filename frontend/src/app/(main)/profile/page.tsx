@@ -5,9 +5,11 @@ import { UserAvatar } from '@/components/ui/user-avatar';
 import { useMe, useUpdateProfile, useDeleteAccount } from '@/hooks/useProfile';
 import { useUserPosts } from '@/hooks/usePosts';
 import { PostCard } from '@/components/posts/PostCard';
+import { PostCardSkeleton } from '@/components/posts/PostCardSkeleton';
 import { PostDetailModal } from '@/components/posts/PostDetailModal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { storageService } from '@/services/storage.service';
+import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,7 +37,13 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!loading && !user) router.replace('/login');
   }, [user, loading, router]);
-  const { data: postsData } = useUserPosts(user?.uid ?? '');
+  const {
+    data: postsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingPosts,
+  } = useUserPosts(user?.uid ?? '');
   const updateProfile = useUpdateProfile();
   const deleteAccount = useDeleteAccount();
   const signOut = useSignOut();
@@ -63,7 +71,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8 p-6">
-      <h1 className="text-2xl font-bold text-white">Your Profile</h1>
+      <h1 className="text-2xl font-bold text-foreground">Your Profile</h1>
 
       <div className="flex items-center gap-4">
         <label className="cursor-pointer">
@@ -76,10 +84,10 @@ export default function ProfilePage() {
           />
         </label>
         <div>
-          <p className="font-semibold text-white">
+          <p className="font-semibold text-foreground">
             {profile ? `${profile.name} ${profile.surname}` : '…'}
           </p>
-          <p className="text-sm text-gray-400">{user?.email}</p>
+          <p className="text-sm text-muted-foreground">{user?.email}</p>
           <p className="mt-1 text-xs text-blue-400">Click avatar to change</p>
         </div>
       </div>
@@ -89,28 +97,28 @@ export default function ProfilePage() {
         className="space-y-4"
       >
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+          <label htmlFor="name" className="block text-sm font-medium text-muted-foreground">
             First Name
           </label>
           <input
             {...register('name')}
             id="name"
             autoComplete="given-name"
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground focus:border-blue-500 focus:outline-none"
           />
           {errors.name && (
             <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>
           )}
         </div>
         <div>
-          <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
+          <label htmlFor="surname" className="block text-sm font-medium text-muted-foreground">
             Last Name
           </label>
           <input
             {...register('surname')}
             id="surname"
             autoComplete="family-name"
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground focus:border-blue-500 focus:outline-none"
           />
           {errors.surname && (
             <p className="mt-1 text-xs text-red-400">{errors.surname.message}</p>
@@ -126,18 +134,40 @@ export default function ProfilePage() {
       </form>
 
       {user?.providerData.some((p) => p.providerId === 'password') && (
-        <div className="space-y-3 rounded-xl border border-gray-800 p-4">
-          <h2 className="font-semibold text-white">Change Password</h2>
+        <div className="space-y-3 rounded-xl border border-border p-4">
+          <h2 className="font-semibold text-foreground">Change Password</h2>
           <ChangePasswordForm />
         </div>
       )}
 
-      {posts.length > 0 && (
+      {isLoadingPosts && (
         <div>
-          <h2 className="mb-2 font-semibold text-white">My Posts</h2>
+          <h2 className="mb-2 font-semibold text-foreground">My Posts</h2>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
+      {!isLoadingPosts && posts.length > 0 && (
+        <div>
+          <h2 className="mb-2 font-semibold text-foreground">My Posts</h2>
           {posts.map((post) => (
             <PostCard key={post.id} post={post} onSelect={() => setSelectedPostId(post.id)} />
           ))}
+
+          {hasNextPage && (
+            <div className="flex justify-center p-4">
+              <Button
+                variant="outline"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="rounded-full border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                {isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -149,7 +179,7 @@ export default function ProfilePage() {
         <h2 className="font-semibold text-red-400">Danger Zone</h2>
         <button
           onClick={() => signOut.mutate()}
-          className="w-full rounded-lg border border-gray-700 py-2 text-gray-300 transition hover:bg-gray-800"
+          className="w-full rounded-lg border border-border py-2 text-muted-foreground transition hover:bg-accent"
         >
           Log out
         </button>
@@ -212,7 +242,7 @@ function ChangePasswordForm() {
         placeholder="Current password"
         required
         minLength={6}
-        className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
       />
       <input
         type="password"
@@ -221,12 +251,12 @@ function ChangePasswordForm() {
         placeholder="New password (min 6 chars)"
         required
         minLength={6}
-        className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
       />
       <button
         type="submit"
         disabled={loading}
-        className="rounded-full bg-gray-700 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-600 disabled:opacity-50"
+        className="rounded-full bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground hover:bg-accent disabled:opacity-50"
       >
         {loading ? 'Updating…' : 'Change Password'}
       </button>
