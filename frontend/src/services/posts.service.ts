@@ -3,12 +3,20 @@ import type { Post, PaginatedPosts } from '@/types';
 
 export const postsService = {
   getAll: (
-    params: { limit?: number; startAfter?: string; q?: string } = {},
+    params: {
+      limit?: number;
+      startAfter?: string;
+      q?: string;
+      sort?: 'top' | 'new';
+      userId?: string;
+    } = {},
   ) => {
-    const { limit = 10, startAfter, q } = params;
+    const { limit = 10, startAfter, q, sort, userId } = params;
     const qs = new URLSearchParams({ limit: String(limit) });
     if (startAfter) qs.set('startAfter', startAfter);
     if (q) qs.set('q', q);
+    if (sort) qs.set('sort', sort);
+    if (userId) qs.set('userId', userId);
     return apiFetch<PaginatedPosts>(`/posts?${qs}`);
   },
 

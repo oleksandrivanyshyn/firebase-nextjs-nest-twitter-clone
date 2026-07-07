@@ -7,14 +7,20 @@ import {
 import { toast } from 'sonner';
 import { postsService } from '@/services/posts.service';
 
-export function useFeed(search: string) {
+export function useFeed(
+  search: string,
+  sort: 'top' | 'new' = 'top',
+  userId?: string,
+) {
   return useInfiniteQuery({
-    queryKey: ['posts', search],
+    queryKey: ['posts', search, sort, userId ?? null],
     queryFn: ({ pageParam }) =>
       postsService.getAll({
         limit: 10,
         startAfter: pageParam,
         q: search || undefined,
+        sort,
+        userId,
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
