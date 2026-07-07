@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { UserAvatar } from '@/components/ui/user-avatar';
+import { PostImage } from './PostImage';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
@@ -29,7 +29,7 @@ function Author({ userId }: { userId: string }) {
   return (
     <Link href={`/user/${userId}`} className="flex items-center gap-3">
       <UserAvatar src={author?.photoURL} name={author?.name} className="h-10 w-10" />
-      <span className="font-semibold text-white hover:underline">
+      <span className="font-semibold text-foreground hover:underline">
         {author ? `${author.name} ${author.surname}` : '…'}
       </span>
     </Link>
@@ -54,7 +54,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-[95vw] max-w-2xl bg-gray-900 text-white lg:max-w-5xl">
+      <DialogContent className="w-[95vw] max-w-2xl bg-card text-card-foreground lg:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Post</DialogTitle>
         </DialogHeader>
@@ -67,7 +67,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
           )}
 
           {(isError || (!isLoading && !post)) && (
-            <p className="p-8 text-center text-gray-500">Post not found.</p>
+            <p className="p-8 text-center text-muted-foreground">Post not found.</p>
           )}
 
           {post && (
@@ -75,25 +75,22 @@ export function PostDetailModal({ postId, onClose }: Props) {
               <div className="space-y-3">
                 <Author userId={post.userId} />
 
-                <h2 className="text-xl font-bold text-white">{post.title}</h2>
-                <p className="whitespace-pre-wrap text-gray-300">{post.text}</p>
+                <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
+                <p className="whitespace-pre-wrap text-muted-foreground">{post.text}</p>
 
                 {post.photoURL && (
-                  <Image
+                  <PostImage
                     src={post.photoURL}
-                    alt="post"
-                    width={800}
-                    height={400}
                     className="w-full rounded-xl object-contain"
                   />
                 )}
 
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {dayjs(post.createdAt).format('h:mm A · MMM D, YYYY')}
                 </p>
               </div>
 
-              <div className="flex items-center gap-6 border-y border-gray-800 py-3 text-sm text-gray-400">
+              <div className="flex items-center gap-6 border-y border-border py-3 text-sm text-muted-foreground">
                 <button
                   onClick={() => handleReact('like')}
                   aria-label="Like"

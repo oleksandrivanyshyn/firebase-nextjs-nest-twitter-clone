@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { ThumbsUp, ThumbsDown, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -12,6 +11,7 @@ import { useDeletePost } from '@/hooks/usePosts';
 import { useMyReaction, useReact } from '@/hooks/useReactions';
 import { useUser } from '@/hooks/useProfile';
 import { EditPostModal } from './EditPostModal';
+import { PostImage } from './PostImage';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import type { Post } from '@/types';
@@ -46,7 +46,7 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
 
   return (
     <>
-      <article className="border-b border-gray-800 p-4 transition hover:bg-gray-900/50">
+      <article className="border-b border-border p-4 transition hover:bg-accent/50">
         <div className="flex gap-3">
           <Link href={`/user/${post.userId}`} className="shrink-0">
             <UserAvatar src={author?.photoURL} name={author?.name} className="h-10 w-10" />
@@ -56,11 +56,11 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
             <div className="flex items-center justify-between gap-2">
               <Link
                 href={`/user/${post.userId}`}
-                className="truncate font-semibold text-white hover:underline"
+                className="truncate font-semibold text-foreground hover:underline"
               >
                 {author ? `${author.name} ${author.surname}` : '…'}
               </Link>
-              <span className="shrink-0 text-xs text-gray-500">
+              <span className="shrink-0 text-xs text-muted-foreground">
                 {dayjs(post.createdAt).fromNow()}
               </span>
             </div>
@@ -69,23 +69,20 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
               onClick={onSelect}
               className="block w-full text-left"
             >
-              <h2 className="mt-1 font-medium text-gray-100">{post.title}</h2>
-              <p className="mt-1 line-clamp-3 text-sm text-gray-400">
+              <h2 className="mt-1 font-medium text-foreground">{post.title}</h2>
+              <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">
                 {post.text}
               </p>
               {post.photoURL && (
-                <Image
+                <PostImage
                   src={post.photoURL}
-                  alt="post"
-                  width={800}
-                  height={400}
                   className="mt-2 max-h-96 w-full rounded-xl object-cover"
                 />
               )}
             </button>
 
             {showActions && (
-              <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
+              <div className="mt-3 flex items-center gap-6 text-sm text-muted-foreground">
                 <button
                   onClick={() => handleReact('like')}
                   aria-label="Like"
