@@ -46,7 +46,22 @@ export class AlgoliaService implements OnModuleInit {
     });
   }
 
-  async updatePost(id: string, data: Partial<Pick<AlgoliaPost, 'title' | 'text' | 'photoURL'>>) {
+  async updatePost(
+    id: string,
+    data: Partial<
+      Pick<
+        AlgoliaPost,
+        | 'title'
+        | 'text'
+        | 'photoURL'
+        | 'authorName'
+        | 'likesCount'
+        | 'dislikesCount'
+        | 'commentsCount'
+        | 'score'
+      >
+    >,
+  ) {
     await this.client.partialUpdateObject({
       indexName: this.indexName,
       objectID: id,

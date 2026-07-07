@@ -1,16 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
+import { AlgoliaService } from '../../integrations/algolia/algolia.service';
 import { ReactDto } from './dto/react.dto';
 import { calcScore } from '../../common/helpers/score.helper';
 
 @Injectable()
 export class ReactionsService {
-  constructor(private readonly firebase: FirebaseService) {}
+  constructor(
+    private readonly firebase: FirebaseService,
+    private readonly algolia: AlgoliaService,
+  ) {}
 
   async react(postId: string, uid: string, dto: ReactDto) {
     const db = this.firebase.db;
     const postRef = db.collection('posts').doc(postId);
     const likeRef = postRef.collection('likes').doc(uid);
+
+    let newLikes = 0;
+    let newDislikes = 0;
+    let newScore = 0;
 
     await db.runTransaction(async (tx) => {
       const [postSnap, likeSnap] = await Promise.all([
@@ -41,12 +49,12 @@ export class ReactionsService {
           likeDelta = dto.type === 'like' ? -1 : 0;
           dislikeDelta = dto.type === 'dislike' ? -1 : 0;
         } else {
-          tx.set(likeRef, { type: dto.type });
+          tx.set(likeRef, { type: dto.type, userId: uid });
           likeDelta = dto.type === 'like' ? 1 : -1;
           dislikeDelta = dto.type === 'dislike' ? 1 : -1;
         }
       } else {
-        tx.set(likeRef, { type: dto.type });
+        tx.set(likeRef, { type: dto.type, userId: uid });
         likeDelta = dto.type === 'like' ? 1 : 0;
         dislikeDelta = dto.type === 'dislike' ? 1 : 0;
       }
@@ -55,15 +63,21 @@ export class ReactionsService {
       const dislikesCount = (post.dislikesCount as number) ?? 0;
       const commentsCount = (post.commentsCount as number) ?? 0;
 
-      const newLikes = likesCount + likeDelta;
-      const newDislikes = dislikesCount + dislikeDelta;
-      const newScore = calcScore(newLikes, commentsCount);
+      newLikes = likesCount + likeDelta;
+      newDislikes = dislikesCount + dislikeDelta;
+      newScore = calcScore(newLikes, commentsCount);
 
       tx.update(postRef, {
         likesCount: newLikes,
         dislikesCount: newDislikes,
         score: newScore,
       });
+    });
+
+    void this.algolia.updatePost(postId, {
+      likesCount: newLikes,
+      dislikesCount: newDislikes,
+      score: newScore,
     });
 
     return { success: true };
