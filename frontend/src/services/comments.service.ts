@@ -1,12 +1,12 @@
 import { apiFetch } from '@/utils/api';
-import type { Comment } from '@/types';
+import type { Comment, PostCountsSync } from '@/types';
 
 export const commentsService = {
   getByPost: (postId: string) =>
     apiFetch<Comment[]>(`/posts/${postId}/comments`),
 
   create: (postId: string, data: { text: string; parentCommentId?: string }) =>
-    apiFetch<Comment>(`/posts/${postId}/comments`, {
+    apiFetch<Comment & PostCountsSync>(`/posts/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -18,5 +18,8 @@ export const commentsService = {
     }),
 
   remove: (postId: string, commentId: string) =>
-    apiFetch(`/posts/${postId}/comments/${commentId}`, { method: 'DELETE' }),
+    apiFetch<{ success: boolean } & PostCountsSync>(
+      `/posts/${postId}/comments/${commentId}`,
+      { method: 'DELETE' },
+    ),
 };

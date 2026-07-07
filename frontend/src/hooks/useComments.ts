@@ -1,5 +1,48 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  QueryClient,
+} from '@tanstack/react-query';
 import { commentsService } from '@/services/comments.service';
+import type { PaginatedPosts, Post } from '@/types';
+
+function syncPostCounts(
+  qc: QueryClient,
+  postId: string,
+  commentsCount: number,
+  score: number,
+) {
+  const apply = (post: Post) =>
+    post.id === postId ? { ...post, commentsCount, score } : post;
+
+  qc.setQueriesData<InfiniteData<PaginatedPosts>>(
+    { queryKey: ['posts'] },
+    (data) =>
+      data && {
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          posts: page.posts.map(apply),
+        })),
+      },
+  );
+  qc.setQueriesData<InfiniteData<PaginatedPosts>>(
+    { queryKey: ['userPosts'] },
+    (data) =>
+      data && {
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          posts: page.posts.map(apply),
+        })),
+      },
+  );
+
+  const prevPost = qc.getQueryData<Post>(['post', postId]);
+  if (prevPost) qc.setQueryData(['post', postId], apply(prevPost));
+}
 
 export function useComments(postId: string) {
   return useQuery({
@@ -13,11 +56,9 @@ export function useCreateComment(postId: string) {
   return useMutation({
     mutationFn: (data: { text: string; parentCommentId?: string }) =>
       commentsService.create(postId, data),
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['comments', postId] });
-      qc.invalidateQueries({ queryKey: ['post', postId] });
-      qc.invalidateQueries({ queryKey: ['posts'] });
-      qc.invalidateQueries({ queryKey: ['userPosts'] });
+      syncPostCounts(qc, postId, result.postCommentsCount, result.postScore);
     },
   });
 }
@@ -36,11 +77,9 @@ export function useDeleteComment(postId: string) {
   return useMutation({
     mutationFn: (commentId: string) =>
       commentsService.remove(postId, commentId),
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['comments', postId] });
-      qc.invalidateQueries({ queryKey: ['post', postId] });
-      qc.invalidateQueries({ queryKey: ['posts'] });
-      qc.invalidateQueries({ queryKey: ['userPosts'] });
+      syncPostCounts(qc, postId, result.postCommentsCount, result.postScore);
     },
   });
 }

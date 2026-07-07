@@ -107,7 +107,12 @@ export class CommentsService {
       score: newScore,
     });
 
-    return { ...commentData, createdAt: new Date().toISOString() };
+    return {
+      ...commentData,
+      createdAt: new Date().toISOString(),
+      postCommentsCount: newCount,
+      postScore: newScore,
+    };
   }
 
   async findByPost(postId: string) {
@@ -185,6 +190,6 @@ export class CommentsService {
       score: newScore,
     });
 
-    return { success: true };
+    return { success: true, postCommentsCount: newCount, postScore: newScore };
   }
 }

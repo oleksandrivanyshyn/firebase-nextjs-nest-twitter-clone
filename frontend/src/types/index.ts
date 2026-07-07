@@ -20,6 +20,11 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface PostCountsSync {
+  postCommentsCount: number;
+  postScore: number;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
