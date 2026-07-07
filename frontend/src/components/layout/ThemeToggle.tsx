@@ -6,9 +6,6 @@ import { Moon, Sun } from 'lucide-react';
 
 const emptySubscribe = () => () => {};
 
-// next-themes only knows the real theme after client hydration; this
-// mirrors its own SSR-safe "mounted" check via useSyncExternalStore instead
-// of a setState-in-effect, which would trigger an extra render pass.
 function useMounted() {
   return useSyncExternalStore(
     emptySubscribe,

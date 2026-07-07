@@ -2,9 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // All writes go through the backend API (Firebase Admin SDK), which
-    // bypasses these rules. Client-side writes are disabled everywhere to
-    // prevent bypassing server-side validation and counter bookkeeping.
     match /users/{userId} {
       allow read: if true;
       allow write: if false;

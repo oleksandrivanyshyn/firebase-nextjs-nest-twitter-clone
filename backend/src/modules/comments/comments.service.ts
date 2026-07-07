@@ -31,9 +31,6 @@ export class CommentsService {
       .collection('comments');
   }
 
-  // BFS over the reply tree: collects every descendant (children,
-  // grandchildren, ...) so deleting a comment also removes orphaned
-  // nested replies instead of only its direct children.
   private async collectDescendants(postId: string, rootId: string) {
     const result: FirebaseFirestore.QueryDocumentSnapshot[] = [];
     let frontier = [rootId];

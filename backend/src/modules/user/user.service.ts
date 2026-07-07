@@ -74,9 +74,6 @@ export class UserService {
     return profile;
   }
 
-  // Post documents don't store authorName themselves (the frontend always
-  // looks up the author live), but Algolia's denormalized copy goes stale
-  // on rename unless we push it to every post the user has authored.
   private async syncAuthorName(uid: string, authorName: string) {
     const postsSnap = await this.firebase.db
       .collection('posts')
@@ -107,9 +104,6 @@ export class UserService {
       }
     }
 
-    // Comments left by this user on OTHER users' posts (comments on their
-    // own posts were already deleted above along with the post itself).
-    // Group by post so each post's commentsCount/score is decremented once.
     const commentsSnap = await db
       .collectionGroup('comments')
       .where('userId', '==', uid)
@@ -126,9 +120,6 @@ export class UserService {
     }
     for (const [postId, docs] of commentsByPost) {
       const postRef = db.collection('posts').doc(postId);
-      // null means the post itself no longer exists (e.g. its owner deleted
-      // it independently) — Algolia's copy was already removed by
-      // PostsService.remove(), so skip re-syncing it.
       const result = await db.runTransaction(async (tx) => {
         const postSnap = await tx.get(postRef);
         if (!postSnap.exists) return null;
@@ -148,7 +139,6 @@ export class UserService {
       }
     }
 
-    // Likes/dislikes left by this user on OTHER users' posts.
     const likesSnap = await db
       .collectionGroup('likes')
       .where('userId', '==', uid)

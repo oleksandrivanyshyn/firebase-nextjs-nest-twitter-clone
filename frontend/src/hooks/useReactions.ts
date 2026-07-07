@@ -19,8 +19,6 @@ export function useMyReaction(postId: string, userId?: string) {
   });
 }
 
-// Mirrors the toggle semantics of the backend transaction in
-// reactions.service.ts so the optimistic update matches the real outcome.
 function computeReactionDelta(current: ReactionType | null, type: ReactionType) {
   if (current === type) {
     return {
@@ -55,10 +53,6 @@ export function useReact(postId: string) {
   return useMutation({
     mutationFn: (type: ReactionType) => reactionsService.react(postId, type),
 
-    // Feed/profile lists are sorted by score, which changes the instant a
-    // like/dislike lands. Invalidating those lists here would reshuffle the
-    // post out from under the user's cursor, so instead we patch counts
-    // in place — the list re-sorts naturally on the next real reload.
     onMutate: async (type) => {
       await qc.cancelQueries({ queryKey: ['reaction', postId] });
 
@@ -114,11 +108,6 @@ export function useReact(postId: string) {
         qc.setQueryData(key, data),
       );
       if (ctx.prevPost) qc.setQueryData(['post', postId], ctx.prevPost);
-    },
-
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['reaction', postId] });
-      qc.invalidateQueries({ queryKey: ['post', postId] });
     },
   });
 }
