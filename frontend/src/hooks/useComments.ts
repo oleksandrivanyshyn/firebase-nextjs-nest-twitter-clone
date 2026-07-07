@@ -16,6 +16,8 @@ export function useCreateComment(postId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['comments', postId] });
       qc.invalidateQueries({ queryKey: ['post', postId] });
+      qc.invalidateQueries({ queryKey: ['posts'] });
+      qc.invalidateQueries({ queryKey: ['userPosts'] });
     },
   });
 }
@@ -37,6 +39,8 @@ export function useDeleteComment(postId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['comments', postId] });
       qc.invalidateQueries({ queryKey: ['post', postId] });
+      qc.invalidateQueries({ queryKey: ['posts'] });
+      qc.invalidateQueries({ queryKey: ['userPosts'] });
     },
   });
 }
