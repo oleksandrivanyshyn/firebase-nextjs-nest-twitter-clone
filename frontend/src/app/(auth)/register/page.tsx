@@ -1,9 +1,12 @@
 'use client';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useRegister } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { AuthCard } from '@/components/auth/AuthCard';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { PhoneSignIn } from '@/components/auth/PhoneSignIn';
@@ -24,6 +27,13 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) router.replace('/feed');
+  }, [user, loading, router]);
+
   const {
     register,
     handleSubmit,
@@ -61,7 +71,7 @@ export default function RegisterPage() {
       >
         {fields.map((f) => (
           <div key={f.key}>
-            <label htmlFor={f.key} className="block text-sm font-medium text-gray-300">
+            <label htmlFor={f.key} className="block text-sm font-medium text-muted-foreground">
               {f.label}
             </label>
             <input
@@ -70,7 +80,7 @@ export default function RegisterPage() {
               type={f.type}
               placeholder={f.placeholder}
               autoComplete={f.autoComplete}
-              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
             />
             {errors[f.key] && (
               <p className="mt-1 text-xs text-red-400">
@@ -89,7 +99,7 @@ export default function RegisterPage() {
       </form>
       <GoogleSignInButton />
       <PhoneSignIn />
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}
         <Link href="/login" className="text-blue-400 hover:underline">
           Sign in

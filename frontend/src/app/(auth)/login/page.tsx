@@ -1,9 +1,12 @@
 'use client';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSignIn } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { AuthCard } from '@/components/auth/AuthCard';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { PhoneSignIn } from '@/components/auth/PhoneSignIn';
@@ -16,6 +19,13 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) router.replace('/feed');
+  }, [user, loading, router]);
+
   const {
     register,
     handleSubmit,
@@ -42,7 +52,7 @@ export default function LoginPage() {
         className="space-y-4"
       >
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+          <label htmlFor="email" className="block text-sm font-medium text-muted-foreground">
             Email
           </label>
           <input
@@ -50,7 +60,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             autoComplete="email"
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -58,7 +68,7 @@ export default function LoginPage() {
           )}
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+          <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
             Password
           </label>
           <input
@@ -66,7 +76,7 @@ export default function LoginPage() {
             id="password"
             type="password"
             autoComplete="current-password"
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none"
             placeholder="••••••••"
           />
           {errors.password && (
@@ -85,7 +95,7 @@ export default function LoginPage() {
       </form>
       <GoogleSignInButton />
       <PhoneSignIn />
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-muted-foreground">
         No account?{' '}
         <Link href="/register" className="text-blue-400 hover:underline">
           Register
