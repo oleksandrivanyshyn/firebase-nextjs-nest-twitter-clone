@@ -21,7 +21,7 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
-const inputClass = 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:border-blue-500';
+const inputClass = 'bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:border-blue-500';
 
 interface Props {
   post: Post;
@@ -56,7 +56,7 @@ export function EditPostModal({ post, onClose }: Props) {
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-lg flex-col gap-0 bg-gray-900 p-0 text-white">
+      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-lg flex-col gap-0 bg-card p-0 text-card-foreground">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Edit Tweet</DialogTitle>
         </DialogHeader>
@@ -68,18 +68,8 @@ export function EditPostModal({ post, onClose }: Props) {
               {errors.title && <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>}
             </div>
 
-            <div>
-              <Textarea
-                {...register('text')}
-                rows={4}
-                placeholder="What's happening?"
-                className={`resize-none ${inputClass}`}
-              />
-              {errors.text && <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>}
-            </div>
-
             {currentPreview && (
-              <div className="relative flex max-h-60 items-center justify-center overflow-hidden rounded-xl bg-gray-950">
+              <div className="relative flex max-h-60 items-center justify-center overflow-hidden rounded-xl bg-muted">
                 <Image src={currentPreview} alt="preview" width={800} height={600} className="max-h-60 w-full object-contain" />
                 <button
                   type="button"
@@ -91,7 +81,7 @@ export function EditPostModal({ post, onClose }: Props) {
               </div>
             )}
 
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-400 hover:text-white">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ImagePlus className="h-5 w-5" />
               {file ? file.name : currentPreview ? 'Change photo' : 'Add photo'}
               <input
@@ -102,6 +92,16 @@ export function EditPostModal({ post, onClose }: Props) {
               />
             </label>
 
+            <div>
+              <Textarea
+                {...register('text')}
+                rows={4}
+                placeholder="What's happening?"
+                className={`resize-none ${inputClass}`}
+              />
+              {errors.text && <p className="mt-1 text-xs text-red-400">{errors.text.message}</p>}
+            </div>
+
             {updatePost.isError && (
               <p className="text-sm text-red-400">
                 {(updatePost.error as Error)?.message ?? 'Something went wrong'}
@@ -109,7 +109,7 @@ export function EditPostModal({ post, onClose }: Props) {
             )}
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400">
+              <Button type="button" variant="ghost" onClick={onClose} className="text-muted-foreground">
                 Cancel
               </Button>
               <Button
