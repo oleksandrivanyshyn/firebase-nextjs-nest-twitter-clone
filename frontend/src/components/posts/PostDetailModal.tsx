@@ -49,7 +49,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
   const react = useReact(postId);
 
   const handleReact = (type: 'like' | 'dislike') => {
-    if (user) react.mutate(type);
+    if (user && !react.isPending) react.mutate(type);
   };
 
   return (
