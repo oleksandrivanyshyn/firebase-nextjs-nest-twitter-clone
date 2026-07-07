@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, User, PenSquare, LogIn } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { ThemeToggle } from './ThemeToggle';
 
 interface Props {
   onNewTweet: () => void;
@@ -45,9 +44,6 @@ export function BottomNav({ onNewTweet }: Props) {
           <span className="text-xs">Sign in</span>
         </Link>
       )}
-      <div className="flex flex-col items-center justify-center p-1">
-        <ThemeToggle />
-      </div>
     </nav>
   );
 }

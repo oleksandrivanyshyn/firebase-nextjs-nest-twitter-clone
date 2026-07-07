@@ -7,7 +7,6 @@ import { useSignOut } from '@/hooks/useAuth';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
-import { ThemeToggle } from './ThemeToggle';
 
 export function Sidebar() {
   const { user } = useAuthContext();
@@ -58,17 +57,14 @@ export function Sidebar() {
           )}
         </div>
 
-        <div className="space-y-2">
-          {user && (
-            <button
-              onClick={() => signOut.mutate()}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground transition hover:bg-accent hover:text-foreground"
-            >
-              <LogOut className="h-5 w-5" /> Log out
-            </button>
-          )}
-          <ThemeToggle className="ml-1" />
-        </div>
+        {user && (
+          <button
+            onClick={() => signOut.mutate()}
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          >
+            <LogOut className="h-5 w-5" /> Log out
+          </button>
+        )}
       </aside>
 
       {showCreatePost && (
