@@ -5,19 +5,52 @@ import {
 } from '@nestjs/common';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { FirebaseService } from '../../integrations/firebase/firebase.service';
+import { AlgoliaService } from '../../integrations/algolia/algolia.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { calcScore } from '../../common/helpers/score.helper';
 
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size)
+    chunks.push(arr.slice(i, i + size));
+  return chunks;
+}
+
 @Injectable()
 export class CommentsService {
-  constructor(private readonly firebase: FirebaseService) {}
+  constructor(
+    private readonly firebase: FirebaseService,
+    private readonly algolia: AlgoliaService,
+  ) {}
 
   private comments(postId: string) {
     return this.firebase.db
       .collection('posts')
       .doc(postId)
       .collection('comments');
+  }
+
+  // BFS over the reply tree: collects every descendant (children,
+  // grandchildren, ...) so deleting a comment also removes orphaned
+  // nested replies instead of only its direct children.
+  private async collectDescendants(postId: string, rootId: string) {
+    const result: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+    let frontier = [rootId];
+    while (frontier.length) {
+      const nextFrontier: string[] = [];
+      for (const chunk of chunkArray(frontier, 30)) {
+        const snap = await this.comments(postId)
+          .where('parentCommentId', 'in', chunk)
+          .get();
+        for (const doc of snap.docs) {
+          result.push(doc);
+          nextFrontier.push(doc.id);
+        }
+      }
+      frontier = nextFrontier;
+    }
+    return result;
   }
 
   private toData(snap: FirebaseFirestore.DocumentSnapshot) {
@@ -50,6 +83,9 @@ export class CommentsService {
       createdAt: FieldValue.serverTimestamp(),
     };
 
+    let newScore = 0;
+    let newCount = 0;
+
     await db.runTransaction(async (tx) => {
       const postSnap = await tx.get(postRef);
       if (!postSnap.exists) {
@@ -60,12 +96,18 @@ export class CommentsService {
         throw new NotFoundException('Post data not found');
       }
       const commentsCount = (post.commentsCount as number) ?? 0;
-      const newCount = commentsCount + 1;
+      newCount = commentsCount + 1;
+      newScore = calcScore((post.likesCount as number) ?? 0, newCount);
       tx.set(commentRef, commentData);
       tx.update(postRef, {
         commentsCount: newCount,
-        score: calcScore((post.likesCount as number) ?? 0, newCount),
+        score: newScore,
       });
+    });
+
+    void this.algolia.updatePost(postId, {
+      commentsCount: newCount,
+      score: newScore,
     });
 
     return { ...commentData, createdAt: new Date().toISOString() };
@@ -103,9 +145,10 @@ export class CommentsService {
     const postRef = db.collection('posts').doc(postId);
     const commentRef = this.comments(postId).doc(commentId);
 
-    const repliesSnap = await this.comments(postId)
-      .where('parentCommentId', '==', commentId)
-      .get();
+    const descendants = await this.collectDescendants(postId, commentId);
+
+    let newScore = 0;
+    let newCount = 0;
 
     await db.runTransaction(async (tx) => {
       const [commentSnap, postSnap] = await Promise.all([
@@ -128,15 +171,21 @@ export class CommentsService {
         throw new NotFoundException('Post data not found');
       }
       const commentsCount = (post.commentsCount as number) ?? 0;
-      const deleteCount = 1 + repliesSnap.size;
-      const newCount = Math.max(0, commentsCount - deleteCount);
+      const deleteCount = 1 + descendants.length;
+      newCount = Math.max(0, commentsCount - deleteCount);
+      newScore = calcScore((post.likesCount as number) ?? 0, newCount);
 
       tx.delete(commentRef);
-      repliesSnap.docs.forEach((doc) => tx.delete(doc.ref));
+      descendants.forEach((doc) => tx.delete(doc.ref));
       tx.update(postRef, {
         commentsCount: newCount,
-        score: calcScore((post.likesCount as number) ?? 0, newCount),
+        score: newScore,
       });
+    });
+
+    void this.algolia.updatePost(postId, {
+      commentsCount: newCount,
+      score: newScore,
     });
 
     return { success: true };
