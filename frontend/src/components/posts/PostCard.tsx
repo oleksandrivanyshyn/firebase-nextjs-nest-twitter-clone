@@ -41,7 +41,6 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
       router.push('/login');
       return;
     }
-    if (react.isPending) return;
     react.mutate(type);
   };
 

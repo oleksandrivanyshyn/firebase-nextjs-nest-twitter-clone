@@ -51,6 +51,7 @@ export function useReact(postId: string) {
   const reactionKey = ['reaction', postId, user?.uid];
 
   return useMutation({
+    scope: { id: `react-${postId}` },
     mutationFn: (type: ReactionType) => reactionsService.react(postId, type),
 
     onMutate: async (type) => {
