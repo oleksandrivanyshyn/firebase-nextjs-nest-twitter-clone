@@ -59,10 +59,12 @@ export function PhoneSignIn() {
     setLoading(true);
     try {
       const result = await confirmationRef.current!.confirm(code);
-      if (result.user.displayName) {
-        router.replace('/feed');
-      } else {
+      const isNewUser =
+        result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+      if (isNewUser) {
         setStep('profile');
+      } else {
+        router.replace('/feed');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid code');
