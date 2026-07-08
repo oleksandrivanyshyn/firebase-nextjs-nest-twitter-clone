@@ -21,7 +21,20 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useUser } from '@/hooks/useProfile';
 import { CommentTree } from '@/components/comments/CommentTree';
 import { CommentForm } from '@/components/comments/CommentForm';
-import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function CommentSkeleton() {
+  return (
+    <div className="flex gap-3 border-b border-border p-4">
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-2/3" />
+      </div>
+    </div>
+  );
+}
 
 dayjs.extend(relativeTime);
 
@@ -46,7 +59,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
   const { user, needsEmailVerification } = useAuthContext();
   const router = useRouter();
   const { data: post, isLoading, isError } = usePost(postId);
-  const { data: comments = [] } = useComments(postId);
+  const { data: comments = [], isLoading: isLoadingComments } = useComments(postId);
   const { data: reaction } = useMyReaction(postId, user?.uid);
   const react = useReact(postId);
 
@@ -68,8 +81,14 @@ export function PostDetailModal({ postId, onClose }: Props) {
 
         <ScrollArea className="max-h-[75vh]">
           {isLoading && (
-            <div className="flex justify-center p-8">
-              <Spinner />
+            <div className="space-y-3 p-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-5 w-2/3" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
             </div>
           )}
 
@@ -136,7 +155,14 @@ export function PostDetailModal({ postId, onClose }: Props) {
 
               <div className="space-y-4 pt-4">
                 <CommentForm postId={postId} />
-                <CommentTree comments={comments} postId={postId} />
+                {isLoadingComments ? (
+                  <>
+                    <CommentSkeleton />
+                    <CommentSkeleton />
+                  </>
+                ) : (
+                  <CommentTree comments={comments} postId={postId} />
+                )}
               </div>
             </>
           )}
