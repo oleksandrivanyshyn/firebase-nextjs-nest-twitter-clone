@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { PostImage } from './PostImage';
 import dayjs from 'dayjs';
@@ -43,13 +44,18 @@ interface Props {
 
 export function PostDetailModal({ postId, onClose }: Props) {
   const { user } = useAuthContext();
+  const router = useRouter();
   const { data: post, isLoading, isError } = usePost(postId);
   const { data: comments = [] } = useComments(postId);
   const { data: reaction } = useMyReaction(postId, user?.uid);
   const react = useReact(postId);
 
   const handleReact = (type: 'like' | 'dislike') => {
-    if (user) react.mutate(type);
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    react.mutate(type);
   };
 
   return (
@@ -124,7 +130,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
               </div>
 
               <div className="space-y-4 pt-4">
-                {user && <CommentForm postId={postId} />}
+                <CommentForm postId={postId} />
                 <CommentTree comments={comments} postId={postId} />
               </div>
             </>

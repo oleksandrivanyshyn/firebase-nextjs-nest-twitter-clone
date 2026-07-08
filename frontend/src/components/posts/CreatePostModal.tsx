@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { ImagePlus, X } from 'lucide-react';
 import { storageService } from '@/services/storage.service';
 import { useCreatePost } from '@/hooks/usePosts';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ type FormData = z.infer<typeof schema>;
 const inputClass = 'bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:border-blue-500';
 
 export function CreatePostModal({ onClose }: { onClose: () => void }) {
+  const { needsEmailVerification } = useAuthContext();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const createPost = useCreatePost();
@@ -96,13 +98,19 @@ export function CreatePostModal({ onClose }: { onClose: () => void }) {
               </p>
             )}
 
+            {needsEmailVerification && (
+              <p className="text-sm text-yellow-400">
+                Verify your email to post.
+              </p>
+            )}
+
             <div className="flex justify-end gap-3">
               <Button type="button" variant="ghost" onClick={onClose} className="text-muted-foreground">
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || createPost.isPending}
+                disabled={isSubmitting || createPost.isPending || needsEmailVerification}
                 className="rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-500"
               >
                 {isSubmitting || createPost.isPending ? 'Posting…' : 'Tweet'}

@@ -94,15 +94,13 @@ export function CommentItem({ comment, postId, depth }: Props) {
           )}
 
           <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-            {user && (
-              <button
-                onClick={() => setReplying((r) => !r)}
-                aria-label="Reply to comment"
-                className="flex items-center gap-1 transition hover:text-foreground"
-              >
-                <Reply className="h-3 w-3" /> Reply
-              </button>
-            )}
+            <button
+              onClick={() => setReplying((r) => !r)}
+              aria-label="Reply to comment"
+              className="flex items-center gap-1 transition hover:text-foreground"
+            >
+              <Reply className="h-3 w-3" /> Reply
+            </button>
             {isOwner && (
               <>
                 <button

@@ -9,11 +9,11 @@ import { useAuthContext } from '@/contexts/AuthContext';
 const RESEND_COOLDOWN_MS = 60_000;
 
 export function EmailVerificationBanner() {
-  const { user } = useAuthContext();
+  const { user, needsEmailVerification } = useAuthContext();
   const [sending, setSending] = useState(false);
   const [justSent, setJustSent] = useState(false);
 
-  if (!user || !user.email || user.emailVerified) return null;
+  if (!user || !needsEmailVerification) return null;
 
   const onResend = async () => {
     if (sending || justSent) return;

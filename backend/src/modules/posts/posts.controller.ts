@@ -13,6 +13,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
+import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
@@ -21,7 +22,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, EmailVerifiedGuard)
   create(@CurrentUser() user: DecodedIdToken, @Body() dto: CreatePostDto) {
     return this.postsService.create(user.uid, dto);
   }

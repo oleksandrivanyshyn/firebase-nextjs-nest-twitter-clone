@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
-  const { user } = useAuthContext();
+  const { user, needsEmailVerification } = useAuthContext();
   const { data: profile } = useMe(!!user);
   const [text, setText] = useState('');
   const createComment = useCreateComment(postId);
@@ -27,6 +27,12 @@ export function CommentForm({ postId, parentCommentId, onSuccess }: Props) {
         </Link>{' '}
         to leave a comment.
       </p>
+    );
+  }
+
+  if (needsEmailVerification) {
+    return (
+      <p className="text-sm text-yellow-400">Verify your email to comment.</p>
     );
   }
 

@@ -12,8 +12,13 @@ import { auth } from '@/lib/firebase';
 interface AuthCtx {
   user: User | null;
   loading: boolean;
+  needsEmailVerification: boolean;
 }
-const AuthContext = createContext<AuthCtx>({ user: null, loading: true });
+const AuthContext = createContext<AuthCtx>({
+  user: null,
+  loading: true,
+  needsEmailVerification: false,
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -27,8 +32,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsub;
   }, []);
 
+  const needsEmailVerification = !!user?.email && !user.emailVerified;
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, needsEmailVerification }}>
       {children}
     </AuthContext.Provider>
   );
