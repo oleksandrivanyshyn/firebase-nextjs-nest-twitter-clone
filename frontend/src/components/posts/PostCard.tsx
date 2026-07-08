@@ -26,7 +26,7 @@ interface Props {
 }
 
 export function PostCard({ post, onSelect, onDeleted, showActions = true }: Props) {
-  const { user } = useAuthContext();
+  const { user, needsEmailVerification } = useAuthContext();
   const router = useRouter();
   const isOwner = user?.uid === post.userId;
   const [showEdit, setShowEdit] = useState(false);
@@ -41,6 +41,7 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
       router.push('/login');
       return;
     }
+    if (needsEmailVerification) return;
     react.mutate(type);
   };
 
@@ -87,7 +88,9 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
                   onClick={() => handleReact('like')}
                   aria-label="Like"
                   aria-pressed={reaction?.type === 'like'}
-                  className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
+                  disabled={needsEmailVerification}
+                  title={needsEmailVerification ? 'Verify your email to react' : undefined}
+                  className={`flex items-center gap-1 transition hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsUp
                     className="h-4 w-4"
@@ -100,7 +103,9 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
                   onClick={() => handleReact('dislike')}
                   aria-label="Dislike"
                   aria-pressed={reaction?.type === 'dislike'}
-                  className={`flex items-center gap-1 transition hover:text-blue-400 ${reaction?.type === 'dislike' ? 'text-blue-400' : ''}`}
+                  disabled={needsEmailVerification}
+                  title={needsEmailVerification ? 'Verify your email to react' : undefined}
+                  className={`flex items-center gap-1 transition hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground ${reaction?.type === 'dislike' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsDown
                     className="h-4 w-4"

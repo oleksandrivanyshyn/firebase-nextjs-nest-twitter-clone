@@ -43,7 +43,7 @@ interface Props {
 }
 
 export function PostDetailModal({ postId, onClose }: Props) {
-  const { user } = useAuthContext();
+  const { user, needsEmailVerification } = useAuthContext();
   const router = useRouter();
   const { data: post, isLoading, isError } = usePost(postId);
   const { data: comments = [] } = useComments(postId);
@@ -55,6 +55,7 @@ export function PostDetailModal({ postId, onClose }: Props) {
       router.push('/login');
       return;
     }
+    if (needsEmailVerification) return;
     react.mutate(type);
   };
 
@@ -101,7 +102,9 @@ export function PostDetailModal({ postId, onClose }: Props) {
                   onClick={() => handleReact('like')}
                   aria-label="Like"
                   aria-pressed={reaction?.type === 'like'}
-                  className={`flex items-center gap-2 transition hover:text-blue-400 ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
+                  disabled={needsEmailVerification}
+                  title={needsEmailVerification ? 'Verify your email to react' : undefined}
+                  className={`flex items-center gap-2 transition hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground ${reaction?.type === 'like' ? 'text-blue-400' : ''}`}
                 >
                   <ThumbsUp
                     className="h-4 w-4"
@@ -114,7 +117,9 @@ export function PostDetailModal({ postId, onClose }: Props) {
                   onClick={() => handleReact('dislike')}
                   aria-label="Dislike"
                   aria-pressed={reaction?.type === 'dislike'}
-                  className={`flex items-center gap-2 transition hover:text-red-400 ${reaction?.type === 'dislike' ? 'text-red-400' : ''}`}
+                  disabled={needsEmailVerification}
+                  title={needsEmailVerification ? 'Verify your email to react' : undefined}
+                  className={`flex items-center gap-2 transition hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground ${reaction?.type === 'dislike' ? 'text-red-400' : ''}`}
                 >
                   <ThumbsDown
                     className="h-4 w-4"
