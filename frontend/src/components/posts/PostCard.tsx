@@ -70,16 +70,16 @@ export function PostCard({ post, onSelect, onDeleted, showActions = true }: Prop
               onClick={onSelect}
               className="block w-full text-left"
             >
-              <h2 className="mt-1 font-medium text-foreground">{post.title}</h2>
-              <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">
-                {post.text}
-              </p>
               {post.photoURL && (
                 <PostImage
                   src={post.photoURL}
-                  className="mt-2 max-h-96 w-full rounded-xl object-cover"
+                  className="mt-1 max-h-96 w-full rounded-xl object-cover"
                 />
               )}
+              <h2 className="mt-2 font-medium text-foreground">{post.title}</h2>
+              <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">
+                {post.text}
+              </p>
             </button>
 
             {showActions && (

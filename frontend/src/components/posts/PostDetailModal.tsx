@@ -82,15 +82,15 @@ export function PostDetailModal({ postId, onClose }: Props) {
               <div className="space-y-3">
                 <Author userId={post.userId} />
 
-                <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
-                <p className="whitespace-pre-wrap text-muted-foreground">{post.text}</p>
-
                 {post.photoURL && (
                   <PostImage
                     src={post.photoURL}
                     className="w-full rounded-xl object-contain"
                   />
                 )}
+
+                <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
+                <p className="whitespace-pre-wrap text-muted-foreground">{post.text}</p>
 
                 <p className="text-xs text-muted-foreground">
                   {dayjs(post.createdAt).format('h:mm A · MMM D, YYYY')}
